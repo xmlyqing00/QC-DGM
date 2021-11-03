@@ -1,0 +1,2 @@
+22672  s + edge_s + 0.1 * spatial_s  eps 0.001
+22675 s + edges  0.01  6865
