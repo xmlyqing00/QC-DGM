@@ -22,4 +22,5 @@
     tvmonitor = 0.9196
     average = 0.6865
 
-22676
+22676  s + edge + 0.05 spatial_s  eps 0.1
+    avg 0.6865
