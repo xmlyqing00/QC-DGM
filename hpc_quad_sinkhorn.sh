@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1               # request one node
-#SBATCH -J QC-DGM Sink
+#SBATCH -J QC-DGM-Sink
 #SBATCH -t 3-00:00:00	        # request two hours
 #SBATCH -p checkpt          # in single partition (queue)
 #SBATCH -A hpc_gvc2021
