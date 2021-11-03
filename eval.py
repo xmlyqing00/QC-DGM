@@ -180,15 +180,19 @@ if __name__ == '__main__':
                               sets='test',
                               length=cfg.EVAL.SAMPLES,
                               obj_resize=cfg.PAIR.RESCALE)
-    dataloader = get_dataloader(image_dataset)
+    bs = 512
+    if args.local:
+        bs = cfg.BATCH_SIZE
+    dataloader = get_dataloader(image_dataset, bs=bs)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     model = Net()
     model = model.cuda()
     model.quad_sinkhorn_flag = args.quad_sinkhorn
-    # model = DataParallel(model, device_ids = range(torch.cuda.device_count()))
-    model = DataParallel(model, device_ids=[0])
+    model = DataParallel(model, device_ids = range(torch.cuda.device_count()))
+    if args.local:
+        model = DataParallel(model, device_ids=[0])
 
     if not Path(cfg.OUTPUT_PATH).exists():
         Path(cfg.OUTPUT_PATH).mkdir(parents=True)
