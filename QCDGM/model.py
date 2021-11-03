@@ -13,6 +13,8 @@ from utils.config import cfg
 import utils.backbone
 CNN = eval('utils.backbone.{}'.format(cfg.BACKBONE))
 
+import quad_sinkhorn
+
 def kronecker_torch(t1: Tensor, t2: Tensor):
     batch_num = t1.shape[0]
     t1dim1, t1dim2 = t1.shape[1], t1.shape[2]
@@ -32,7 +34,9 @@ class Net(CNN):
         self.sm_layer = sm(alpha=cfg.QCDGM.SCALE_ALPHA)
         self.l2norm = nn.LocalResponseNorm(cfg.QCDGM.FEATURE_CHANNEL * 2, alpha=cfg.QCDGM.FEATURE_CHANNEL * 2, beta=0.5, k=0)
         self.gnn_layer = cfg.QCDGM.GNN_LAYER
-        self.softmax = nn.Softmax(dim=-1) 
+        self.softmax = nn.Softmax(dim=-1)
+
+        self.quad_sinkhorn_flag = False
 
         for i in range(self.gnn_layer):
             if i == 0:
@@ -49,9 +53,9 @@ class Net(CNN):
 
     def forward(self, src, tgt, P_src, P_tgt, G_src, G_tgt, H_src, H_tgt, ns_src, ns_tgt, K_G, K_H, edge_src, edge_tgt, edge_feat1, edge_feat2, perm_mat, type='img'):
         if type == 'img' or type == 'image':
-            # extract feature
-            src_node = self.node_layers(src)
-            src_edge = self.edge_layers(src_node)
+            # extract feature. src shape: bs, 3, 256, 256
+            src_node = self.node_layers(src)  # bs, 512, 32, 32
+            src_edge = self.edge_layers(src_node)  # bs, 512, 16, 16
             tgt_node = self.node_layers(tgt)
             tgt_edge = self.edge_layers(tgt_node)
 
@@ -95,6 +99,52 @@ class Net(CNN):
         ## Node embedding with unary geometric prior
         emb1, emb2 = torch.cat((U_src, F_src, P1_src.transpose(1,2)), dim=1).transpose(1, 2), torch.cat((U_tgt, F_tgt, P2_tgt.transpose(1,2)), dim=1).transpose(1, 2)
 
+        if self.quad_sinkhorn_flag:
+
+            for i in range(self.gnn_layer):
+
+                gnn_layer = getattr(self, 'gnn_layer_{}'.format(i))
+                if i == 0:
+                    emb1, emb2 = gnn_layer([A_src, emb1], [A_tgt, emb2])
+                else:
+                    emb1_new = torch.cat((emb1, torch.bmm(s, emb2)), dim=-1)
+                    emb2_new = torch.cat((emb2, torch.bmm(s.transpose(1, 2), emb1)), dim=-1)
+                    emb1, emb2 = gnn_layer([AA_src, emb1_new], [BB_tgt, emb2_new])
+                affinity = getattr(self, 'affinity_{}'.format(i))
+                s = affinity(emb1, emb2)
+
+                emb1_normed = emb1 / torch.norm(emb1, dim=2, keepdim=True)
+                emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
+
+                ## Pairwise structural context
+                if i == 0:
+                    AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
+                    BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
+                    AA_src = torch.mul(torch.exp(AA), A_src)
+                    BB_tgt = torch.mul(torch.exp(BB), A_tgt)
+                else:
+                    edge_s = torch.einsum('nlc, nsc -> nls', emb1_normed.sum(dim=2, keepdims=True), emb2_normed.sum(dim=2, keepdims=True))
+                    edge_s /= emb2_normed.shape[2]
+
+                    img_size = torch.tensor(src.shape[-2:], dtype=torch.int, device=src.device)
+                    tpos0 = quad_sinkhorn.encode_positions(P_src, img_size)
+                    tpos1 = quad_sinkhorn.encode_positions(P_src, img_size)
+
+                    spatial_s = torch.einsum('nlc, nsc -> nls', tpos0.sum(dim=2, keepdims=True), tpos1.sum(dim=2, keepdims=True))
+
+                    scores = s
+                    s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=20)
+
+                ## Normalization in evaluation
+                if self.training == False:
+                    for b in range(s.shape[0]):
+                        s[b, :, :] = s[b, :, :].clone() / torch.max(s[b, :, :].clone())
+
+                s = self.sm_layer(s, ns_src, ns_tgt)
+                s = self.sh_layer(s, ns_src, ns_tgt)
+
+            return s, None, None, None, None, None, None
+
         for i in range(self.gnn_layer):
 
             gnn_layer = getattr(self, 'gnn_layer_{}'.format(i))
@@ -107,28 +157,35 @@ class Net(CNN):
             affinity = getattr(self, 'affinity_{}'.format(i))   
             s = affinity(emb1, emb2) 
 
-            AA = torch.ones([s.shape[0], s.shape[1], s.shape[1]]).to(s.device)
-            BB = torch.ones([s.shape[0], s.shape[2], s.shape[2]]).to(s.device)
-
-         
+            # AA = torch.ones([s.shape[0], s.shape[1], s.shape[1]]).to(s.device)
+            # BB = torch.ones([s.shape[0], s.shape[2], s.shape[2]]).to(s.device)
             ## Commutative function f
-            for kk in range(s.shape[0]):
-                for ll in range(s.shape[1]):
-                   for qq in range(s.shape[2]):
-                        AA[kk,ll,qq] = torch.exp(torch.matmul(emb1[kk,ll,:]/torch.norm(emb1[kk,ll,:]), emb1[kk,qq,:]/torch.norm(emb1[kk,qq,:])))
-                        BB[kk,ll,qq] = torch.exp(torch.matmul(emb2[kk,ll,:]/torch.norm(emb2[kk,ll,:]), emb2[kk,qq,:]/torch.norm(emb2[kk,qq,:])))
-       
+            # for kk in range(s.shape[0]):
+            #     for ll in range(s.shape[1]):
+            #        for qq in range(s.shape[2]):
+            #             AA[kk,ll,qq] = torch.exp(torch.matmul(emb1[kk,ll,:]/torch.norm(emb1[kk,ll,:]), emb1[kk,qq,:]/torch.norm(emb1[kk,qq,:])))
+            #             BB[kk,ll,qq] = torch.exp(torch.matmul(emb2[kk,ll,:]/torch.norm(emb2[kk,ll,:]), emb2[kk,qq,:]/torch.norm(emb2[kk,qq,:])))
+
+            emb1_normed = emb1 / torch.norm(emb1, dim=2, keepdim=True)
+            emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
+            AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
+            BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
+
             ## Pairwise structural context
-            AA_src = torch.mul(AA, A_src)
-            BB_tgt = torch.mul(BB, A_tgt)
-       
+
+            if i == 1:
+                AA_src = AA
+                BB_tgt = BB
+            else:
+                AA_src = torch.mul(torch.exp(AA), A_src)
+                BB_tgt = torch.mul(torch.exp(BB), A_tgt)
 
             if i == 1:
               ## QC-optimization
               X = s
               lb = 0.1  ## Balancing unary term and pairwise term
               for niter in range(3):
-                for ik in range(3):       
+                for ik in range(3):
 
                    perm_tgt = torch.bmm(torch.bmm(X, BB_tgt), X.transpose(1,2))
                    P = (AA_src - perm_tgt)

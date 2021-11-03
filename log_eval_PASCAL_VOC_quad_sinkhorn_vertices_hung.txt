@@ -1,0 +1,284 @@
+/usr/bin/python3.6 /Ship03/Sources/FeatureMatching/QC-DGM/eval.py --cfg ./experiments/QCDGM_voc.yaml --quad-sinkhorn
+/Ship03/Sources/FeatureMatching/QC-DGM/utils/config.py:213: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  yaml_cfg = edict(yaml.load(f))
+xml list loaded from data/cache/voc_db_test.pkl
+BATCH_SIZE: 128
+PAIR:
+  RESCALE: [256, 256]
+  GT_GRAPH_CONSTRUCT: tri
+  REF_GRAPH_CONSTRUCT: tri
+VOC2011:
+  KPT_ANNO_DIR: data/PascalVOC/annotations/
+  ROOT_DIR: data/PascalVOC/VOC2011/
+  SET_SPLIT: data/PascalVOC/voc2011_pairs.npz
+  CLASSES: ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+WILLOW:
+  ROOT_DIR: data/WILLOW-ObjectClass
+  CLASSES: ['Car', 'Duck', 'Face', 'Motorbike', 'Winebottle']
+  KPT_LEN: 10
+  TRAIN_NUM: 20
+  TRAIN_OFFSET: 0
+QCDGM:
+  FEATURE_CHANNEL: 512
+  BS_ITER_NUM: 20
+  BS_EPSILON: 1e-10
+  SCALE_ALPHA: 20.0
+  GNN_LAYER: 2
+  GNN_FEAT: 2048
+TRAIN:
+  EPOCH_ITERS: 2000
+  START_EPOCH: 0
+  NUM_EPOCHS: 35
+  LR: 0.001
+  LR_DECAY: 0.1
+  LR_STEP: [10]
+  MOMENTUM: 0.9
+  RLOSS_NORM: 256
+  CLASS: none
+  LOSS_FUNC: FMLoss
+EVAL:
+  EPOCH: 20
+  PCK_ALPHAS: [0.05, 0.1]
+  PCK_L: 256.0
+  SAMPLES: 1000
+BACKBONE: VGG16_bn
+GPUS: [0]
+DATALOADER_NUM: 2
+NORM_MEANS: [0.485, 0.456, 0.406]
+NORM_STD: [0.229, 0.224, 0.225]
+CACHE_PATH: data/cache
+MODEL_NAME: QCDGM
+DATASET_NAME: voc
+DATASET_FULL_NAME: PascalVOC
+MODULE: QCDGM.model
+OUTPUT_PATH: output/QCDGM_voc
+STATISTIC_STEP: 100
+RANDOM_SEED: 123
+Start evaluation...
+Loading model parameters from output/QCDGM_voc/params/params_0020.pt
+Evaluating class aeroplane: 0/20
+tensor([0.4971], device='cuda:0') tensor([1213.], device='cuda:0') tensor(603., device='cuda:0') tensor(1213., device='cuda:0')
+tensor([0.4879], device='cuda:0') tensor([2394.], device='cuda:0') tensor(565., device='cuda:0') tensor(1181., device='cuda:0')
+tensor([0.4835], device='cuda:0') tensor([3617.], device='cuda:0') tensor(581., device='cuda:0') tensor(1223., device='cuda:0')
+tensor([0.4770], device='cuda:0') tensor([4797.], device='cuda:0') tensor(539., device='cuda:0') tensor(1180., device='cuda:0')
+tensor([0.4736], device='cuda:0') tensor([6003.], device='cuda:0') tensor(555., device='cuda:0') tensor(1206., device='cuda:0')
+tensor([0.4744], device='cuda:0') tensor([7161.], device='cuda:0') tensor(554., device='cuda:0') tensor(1158., device='cuda:0')
+tensor([0.4741], device='cuda:0') tensor([8297.], device='cuda:0') tensor(537., device='cuda:0') tensor(1136., device='cuda:0')
+tensor([0.4701], device='cuda:0') tensor([9271.], device='cuda:0') tensor(424., device='cuda:0') tensor(974., device='cuda:0')
+Class aeroplane acc = 0.4701
+Evaluating class bicycle: 1/20
+tensor([0.5478], device='cuda:0') tensor([1298.], device='cuda:0') tensor(711., device='cuda:0') tensor(1298., device='cuda:0')
+tensor([0.5444], device='cuda:0') tensor([2614.], device='cuda:0') tensor(712., device='cuda:0') tensor(1316., device='cuda:0')
+tensor([0.5614], device='cuda:0') tensor([3944.], device='cuda:0') tensor(791., device='cuda:0') tensor(1330., device='cuda:0')
+tensor([0.5630], device='cuda:0') tensor([5279.], device='cuda:0') tensor(758., device='cuda:0') tensor(1335., device='cuda:0')
+tensor([0.5648], device='cuda:0') tensor([6620.], device='cuda:0') tensor(767., device='cuda:0') tensor(1341., device='cuda:0')
+tensor([0.5743], device='cuda:0') tensor([7957.], device='cuda:0') tensor(831., device='cuda:0') tensor(1337., device='cuda:0')
+tensor([0.5729], device='cuda:0') tensor([9283.], device='cuda:0') tensor(748., device='cuda:0') tensor(1326., device='cuda:0')
+tensor([0.5737], device='cuda:0') tensor([10358.], device='cuda:0') tensor(624., device='cuda:0') tensor(1075., device='cuda:0')
+Class bicycle acc = 0.5737
+Evaluating class bird: 2/20
+tensor([0.5689], device='cuda:0') tensor([798.], device='cuda:0') tensor(454., device='cuda:0') tensor(798., device='cuda:0')
+tensor([0.5598], device='cuda:0') tensor([1622.], device='cuda:0') tensor(454., device='cuda:0') tensor(824., device='cuda:0')
+tensor([0.5707], device='cuda:0') tensor([2418.], device='cuda:0') tensor(472., device='cuda:0') tensor(796., device='cuda:0')
+tensor([0.5696], device='cuda:0') tensor([3248.], device='cuda:0') tensor(470., device='cuda:0') tensor(830., device='cuda:0')
+tensor([0.5585], device='cuda:0') tensor([4059.], device='cuda:0') tensor(417., device='cuda:0') tensor(811., device='cuda:0')
+tensor([0.5688], device='cuda:0') tensor([4870.], device='cuda:0') tensor(503., device='cuda:0') tensor(811., device='cuda:0')
+tensor([0.5647], device='cuda:0') tensor([5665.], device='cuda:0') tensor(429., device='cuda:0') tensor(795., device='cuda:0')
+tensor([0.5679], device='cuda:0') tensor([6290.], device='cuda:0') tensor(373., device='cuda:0') tensor(625., device='cuda:0')
+Class bird acc = 0.5679
+Evaluating class boat: 3/20
+tensor([0.4920], device='cuda:0') tensor([622.], device='cuda:0') tensor(306., device='cuda:0') tensor(622., device='cuda:0')
+tensor([0.5110], device='cuda:0') tensor([1272.], device='cuda:0') tensor(344., device='cuda:0') tensor(650., device='cuda:0')
+tensor([0.4992], device='cuda:0') tensor([1903.], device='cuda:0') tensor(300., device='cuda:0') tensor(631., device='cuda:0')
+tensor([0.4956], device='cuda:0') tensor([2512.], device='cuda:0') tensor(295., device='cuda:0') tensor(609., device='cuda:0')
+tensor([0.4962], device='cuda:0') tensor([3148.], device='cuda:0') tensor(317., device='cuda:0') tensor(636., device='cuda:0')
+tensor([0.4953], device='cuda:0') tensor([3761.], device='cuda:0') tensor(301., device='cuda:0') tensor(613., device='cuda:0')
+tensor([0.5014], device='cuda:0') tensor([4382.], device='cuda:0') tensor(334., device='cuda:0') tensor(621., device='cuda:0')
+tensor([0.5108], device='cuda:0') tensor([4888.], device='cuda:0') tensor(300., device='cuda:0') tensor(506., device='cuda:0')
+Class boat acc = 0.5108
+Evaluating class bottle: 4/20
+tensor([0.7606], device='cuda:0') tensor([1011.], device='cuda:0') tensor(769., device='cuda:0') tensor(1011., device='cuda:0')
+tensor([0.7422], device='cuda:0') tensor([2025.], device='cuda:0') tensor(734., device='cuda:0') tensor(1014., device='cuda:0')
+tensor([0.7437], device='cuda:0') tensor([3040.], device='cuda:0') tensor(758., device='cuda:0') tensor(1015., device='cuda:0')
+tensor([0.7515], device='cuda:0') tensor([4053.], device='cuda:0') tensor(785., device='cuda:0') tensor(1013., device='cuda:0')
+tensor([0.7503], device='cuda:0') tensor([5062.], device='cuda:0') tensor(752., device='cuda:0') tensor(1009., device='cuda:0')
+tensor([0.7443], device='cuda:0') tensor([6074.], device='cuda:0') tensor(723., device='cuda:0') tensor(1012., device='cuda:0')
+tensor([0.7512], device='cuda:0') tensor([7079.], device='cuda:0') tensor(797., device='cuda:0') tensor(1005., device='cuda:0')
+tensor([0.7485], device='cuda:0') tensor([7900.], device='cuda:0') tensor(595., device='cuda:0') tensor(821., device='cuda:0')
+Class bottle acc = 0.7485
+Evaluating class bus: 5/20
+tensor([0.7525], device='cuda:0') tensor([602.], device='cuda:0') tensor(453., device='cuda:0') tensor(602., device='cuda:0')
+tensor([0.7866], device='cuda:0') tensor([1223.], device='cuda:0') tensor(509., device='cuda:0') tensor(621., device='cuda:0')
+tensor([0.7582], device='cuda:0') tensor([1824.], device='cuda:0') tensor(421., device='cuda:0') tensor(601., device='cuda:0')
+tensor([0.7473], device='cuda:0') tensor([2430.], device='cuda:0') tensor(433., device='cuda:0') tensor(606., device='cuda:0')
+tensor([0.7446], device='cuda:0') tensor([3038.], device='cuda:0') tensor(446., device='cuda:0') tensor(608., device='cuda:0')
+tensor([0.7402], device='cuda:0') tensor([3660.], device='cuda:0') tensor(447., device='cuda:0') tensor(622., device='cuda:0')
+tensor([0.7450], device='cuda:0') tensor([4263.], device='cuda:0') tensor(467., device='cuda:0') tensor(603., device='cuda:0')
+tensor([0.7445], device='cuda:0') tensor([4764.], device='cuda:0') tensor(371., device='cuda:0') tensor(501., device='cuda:0')
+Class bus acc = 0.7445
+Evaluating class car: 6/20
+tensor([0.6459], device='cuda:0') tensor([706.], device='cuda:0') tensor(456., device='cuda:0') tensor(706., device='cuda:0')
+tensor([0.6268], device='cuda:0') tensor([1404.], device='cuda:0') tensor(424., device='cuda:0') tensor(698., device='cuda:0')
+tensor([0.6343], device='cuda:0') tensor([2067.], device='cuda:0') tensor(431., device='cuda:0') tensor(663., device='cuda:0')
+tensor([0.6365], device='cuda:0') tensor([2762.], device='cuda:0') tensor(447., device='cuda:0') tensor(695., device='cuda:0')
+tensor([0.6398], device='cuda:0') tensor([3470.], device='cuda:0') tensor(462., device='cuda:0') tensor(708., device='cuda:0')
+tensor([0.6480], device='cuda:0') tensor([4173.], device='cuda:0') tensor(484., device='cuda:0') tensor(703., device='cuda:0')
+tensor([0.6517], device='cuda:0') tensor([4864.], device='cuda:0') tensor(466., device='cuda:0') tensor(691., device='cuda:0')
+tensor([0.6515], device='cuda:0') tensor([5391.], device='cuda:0') tensor(342., device='cuda:0') tensor(527., device='cuda:0')
+Class car acc = 0.6515
+Evaluating class cat: 7/20
+tensor([0.6891], device='cuda:0') tensor([1084.], device='cuda:0') tensor(747., device='cuda:0') tensor(1084., device='cuda:0')
+tensor([0.6668], device='cuda:0') tensor([2209.], device='cuda:0') tensor(726., device='cuda:0') tensor(1125., device='cuda:0')
+tensor([0.6633], device='cuda:0') tensor([3270.], device='cuda:0') tensor(696., device='cuda:0') tensor(1061., device='cuda:0')
+tensor([0.6532], device='cuda:0') tensor([4354.], device='cuda:0') tensor(675., device='cuda:0') tensor(1084., device='cuda:0')
+tensor([0.6492], device='cuda:0') tensor([5484.], device='cuda:0') tensor(716., device='cuda:0') tensor(1130., device='cuda:0')
+tensor([0.6529], device='cuda:0') tensor([6534.], device='cuda:0') tensor(706., device='cuda:0') tensor(1050., device='cuda:0')
+tensor([0.6585], device='cuda:0') tensor([7579.], device='cuda:0') tensor(725., device='cuda:0') tensor(1045., device='cuda:0')
+tensor([0.6628], device='cuda:0') tensor([8453.], device='cuda:0') tensor(612., device='cuda:0') tensor(874., device='cuda:0')
+Class cat acc = 0.6628
+Evaluating class chair: 8/20
+tensor([0.4218], device='cuda:0') tensor([889.], device='cuda:0') tensor(375., device='cuda:0') tensor(889., device='cuda:0')
+tensor([0.3932], device='cuda:0') tensor([1798.], device='cuda:0') tensor(332., device='cuda:0') tensor(909., device='cuda:0')
+tensor([0.3872], device='cuda:0') tensor([2758.], device='cuda:0') tensor(361., device='cuda:0') tensor(960., device='cuda:0')
+tensor([0.3856], device='cuda:0') tensor([3703.], device='cuda:0') tensor(360., device='cuda:0') tensor(945., device='cuda:0')
+tensor([0.3843], device='cuda:0') tensor([4676.], device='cuda:0') tensor(369., device='cuda:0') tensor(973., device='cuda:0')
+tensor([0.3861], device='cuda:0') tensor([5582.], device='cuda:0') tensor(358., device='cuda:0') tensor(906., device='cuda:0')
+tensor([0.3846], device='cuda:0') tensor([6531.], device='cuda:0') tensor(357., device='cuda:0') tensor(949., device='cuda:0')
+tensor([0.3814], device='cuda:0') tensor([7253.], device='cuda:0') tensor(254., device='cuda:0') tensor(722., device='cuda:0')
+Class chair acc = 0.3814
+Evaluating class cow: 9/20
+tensor([0.6421], device='cuda:0') tensor([1210.], device='cuda:0') tensor(777., device='cuda:0') tensor(1210., device='cuda:0')
+tensor([0.6257], device='cuda:0') tensor([2423.], device='cuda:0') tensor(739., device='cuda:0') tensor(1213., device='cuda:0')
+tensor([0.6220], device='cuda:0') tensor([3661.], device='cuda:0') tensor(761., device='cuda:0') tensor(1238., device='cuda:0')
+tensor([0.6186], device='cuda:0') tensor([4890.], device='cuda:0') tensor(748., device='cuda:0') tensor(1229., device='cuda:0')
+tensor([0.6215], device='cuda:0') tensor([6150.], device='cuda:0') tensor(797., device='cuda:0') tensor(1260., device='cuda:0')
+tensor([0.6216], device='cuda:0') tensor([7384.], device='cuda:0') tensor(768., device='cuda:0') tensor(1234., device='cuda:0')
+tensor([0.6219], device='cuda:0') tensor([8599.], device='cuda:0') tensor(758., device='cuda:0') tensor(1215., device='cuda:0')
+tensor([0.6195], device='cuda:0') tensor([9576.], device='cuda:0') tensor(584., device='cuda:0') tensor(977., device='cuda:0')
+Class cow acc = 0.6195
+Evaluating class diningtable: 10/20
+tensor([0.5918], device='cuda:0') tensor([588.], device='cuda:0') tensor(348., device='cuda:0') tensor(588., device='cuda:0')
+tensor([0.5630], device='cuda:0') tensor([1190.], device='cuda:0') tensor(322., device='cuda:0') tensor(602., device='cuda:0')
+tensor([0.5505], device='cuda:0') tensor([1771.], device='cuda:0') tensor(305., device='cuda:0') tensor(581., device='cuda:0')
+tensor([0.5523], device='cuda:0') tensor([2352.], device='cuda:0') tensor(324., device='cuda:0') tensor(581., device='cuda:0')
+tensor([0.5595], device='cuda:0') tensor([2951.], device='cuda:0') tensor(352., device='cuda:0') tensor(599., device='cuda:0')
+tensor([0.5436], device='cuda:0') tensor([3536.], device='cuda:0') tensor(271., device='cuda:0') tensor(585., device='cuda:0')
+tensor([0.5452], device='cuda:0') tensor([4112.], device='cuda:0') tensor(320., device='cuda:0') tensor(576., device='cuda:0')
+tensor([0.5416], device='cuda:0') tensor([4594.], device='cuda:0') tensor(246., device='cuda:0') tensor(482., device='cuda:0')
+Class diningtable acc = 0.5416
+Evaluating class dog: 11/20
+tensor([0.5748], device='cuda:0') tensor([1070.], device='cuda:0') tensor(615., device='cuda:0') tensor(1070., device='cuda:0')
+tensor([0.5741], device='cuda:0') tensor([2153.], device='cuda:0') tensor(621., device='cuda:0') tensor(1083., device='cuda:0')
+tensor([0.5784], device='cuda:0') tensor([3181.], device='cuda:0') tensor(604., device='cuda:0') tensor(1028., device='cuda:0')
+tensor([0.5729], device='cuda:0') tensor([4212.], device='cuda:0') tensor(573., device='cuda:0') tensor(1031., device='cuda:0')
+tensor([0.5760], device='cuda:0') tensor([5248.], device='cuda:0') tensor(610., device='cuda:0') tensor(1036., device='cuda:0')
+tensor([0.5835], device='cuda:0') tensor([6350.], device='cuda:0') tensor(682., device='cuda:0') tensor(1102., device='cuda:0')
+tensor([0.5875], device='cuda:0') tensor([7396.], device='cuda:0') tensor(640., device='cuda:0') tensor(1046., device='cuda:0')
+tensor([0.5854], device='cuda:0') tensor([8274.], device='cuda:0') tensor(499., device='cuda:0') tensor(878., device='cuda:0')
+Class dog acc = 0.5854
+Evaluating class horse: 12/20
+tensor([0.6002], device='cuda:0') tensor([1258.], device='cuda:0') tensor(755., device='cuda:0') tensor(1258., device='cuda:0')
+tensor([0.6070], device='cuda:0') tensor([2463.], device='cuda:0') tensor(740., device='cuda:0') tensor(1205., device='cuda:0')
+tensor([0.6163], device='cuda:0') tensor([3693.], device='cuda:0') tensor(781., device='cuda:0') tensor(1230., device='cuda:0')
+tensor([0.6179], device='cuda:0') tensor([4871.], device='cuda:0') tensor(734., device='cuda:0') tensor(1178., device='cuda:0')
+tensor([0.6189], device='cuda:0') tensor([6090.], device='cuda:0') tensor(759., device='cuda:0') tensor(1219., device='cuda:0')
+tensor([0.6207], device='cuda:0') tensor([7234.], device='cuda:0') tensor(721., device='cuda:0') tensor(1144., device='cuda:0')
+tensor([0.6247], device='cuda:0') tensor([8436.], device='cuda:0') tensor(780., device='cuda:0') tensor(1202., device='cuda:0')
+tensor([0.6217], device='cuda:0') tensor([9423.], device='cuda:0') tensor(588., device='cuda:0') tensor(987., device='cuda:0')
+Class horse acc = 0.6217
+Evaluating class motorbike: 13/20
+tensor([0.5885], device='cuda:0') tensor([943.], device='cuda:0') tensor(555., device='cuda:0') tensor(943., device='cuda:0')
+tensor([0.5904], device='cuda:0') tensor([1897.], device='cuda:0') tensor(565., device='cuda:0') tensor(954., device='cuda:0')
+tensor([0.6072], device='cuda:0') tensor([2859.], device='cuda:0') tensor(616., device='cuda:0') tensor(962., device='cuda:0')
+tensor([0.5927], device='cuda:0') tensor([3810.], device='cuda:0') tensor(522., device='cuda:0') tensor(951., device='cuda:0')
+tensor([0.5960], device='cuda:0') tensor([4696.], device='cuda:0') tensor(541., device='cuda:0') tensor(886., device='cuda:0')
+tensor([0.5901], device='cuda:0') tensor([5587.], device='cuda:0') tensor(498., device='cuda:0') tensor(891., device='cuda:0')
+tensor([0.5988], device='cuda:0') tensor([6500.], device='cuda:0') tensor(595., device='cuda:0') tensor(913., device='cuda:0')
+tensor([0.5996], device='cuda:0') tensor([7273.], device='cuda:0') tensor(469., device='cuda:0') tensor(773., device='cuda:0')
+Class motorbike acc = 0.5996
+Evaluating class person: 14/20
+tensor([0.4363], device='cuda:0') tensor([1499.], device='cuda:0') tensor(654., device='cuda:0') tensor(1499., device='cuda:0')
+tensor([0.4346], device='cuda:0') tensor([3042.], device='cuda:0') tensor(668., device='cuda:0') tensor(1543., device='cuda:0')
+tensor([0.4299], device='cuda:0') tensor([4541.], device='cuda:0') tensor(630., device='cuda:0') tensor(1499., device='cuda:0')
+tensor([0.4336], device='cuda:0') tensor([6050.], device='cuda:0') tensor(671., device='cuda:0') tensor(1509., device='cuda:0')
+tensor([0.4296], device='cuda:0') tensor([7584.], device='cuda:0') tensor(635., device='cuda:0') tensor(1534., device='cuda:0')
+tensor([0.4258], device='cuda:0') tensor([9145.], device='cuda:0') tensor(636., device='cuda:0') tensor(1561., device='cuda:0')
+tensor([0.4233], device='cuda:0') tensor([10630.], device='cuda:0') tensor(606., device='cuda:0') tensor(1485., device='cuda:0')
+tensor([0.4221], device='cuda:0') tensor([11808.], device='cuda:0') tensor(484., device='cuda:0') tensor(1178., device='cuda:0')
+Class person acc = 0.4221
+Evaluating class pottedplant: 15/20
+tensor([0.7237], device='cuda:0') tensor([666.], device='cuda:0') tensor(482., device='cuda:0') tensor(666., device='cuda:0')
+tensor([0.7420], device='cuda:0') tensor([1337.], device='cuda:0') tensor(510., device='cuda:0') tensor(671., device='cuda:0')
+tensor([0.7418], device='cuda:0') tensor([2002.], device='cuda:0') tensor(493., device='cuda:0') tensor(665., device='cuda:0')
+tensor([0.7437], device='cuda:0') tensor([2669.], device='cuda:0') tensor(500., device='cuda:0') tensor(667., device='cuda:0')
+tensor([0.7458], device='cuda:0') tensor([3352.], device='cuda:0') tensor(515., device='cuda:0') tensor(683., device='cuda:0')
+tensor([0.7469], device='cuda:0') tensor([4018.], device='cuda:0') tensor(501., device='cuda:0') tensor(666., device='cuda:0')
+tensor([0.7499], device='cuda:0') tensor([4678.], device='cuda:0') tensor(507., device='cuda:0') tensor(660., device='cuda:0')
+tensor([0.7466], device='cuda:0') tensor([5228.], device='cuda:0') tensor(395., device='cuda:0') tensor(550., device='cuda:0')
+Class pottedplant acc = 0.7466
+Evaluating class sheep: 16/20
+tensor([0.6557], device='cuda:0') tensor([944.], device='cuda:0') tensor(619., device='cuda:0') tensor(944., device='cuda:0')
+tensor([0.6427], device='cuda:0') tensor([1878.], device='cuda:0') tensor(588., device='cuda:0') tensor(934., device='cuda:0')
+tensor([0.6438], device='cuda:0') tensor([2827.], device='cuda:0') tensor(613., device='cuda:0') tensor(949., device='cuda:0')
+tensor([0.6392], device='cuda:0') tensor([3769.], device='cuda:0') tensor(589., device='cuda:0') tensor(942., device='cuda:0')
+tensor([0.6385], device='cuda:0') tensor([4702.], device='cuda:0') tensor(593., device='cuda:0') tensor(933., device='cuda:0')
+tensor([0.6371], device='cuda:0') tensor([5673.], device='cuda:0') tensor(612., device='cuda:0') tensor(971., device='cuda:0')
+tensor([0.6376], device='cuda:0') tensor([6553.], device='cuda:0') tensor(564., device='cuda:0') tensor(880., device='cuda:0')
+tensor([0.6379], device='cuda:0') tensor([7304.], device='cuda:0') tensor(481., device='cuda:0') tensor(751., device='cuda:0')
+Class sheep acc = 0.6379
+Evaluating class sofa: 17/20
+tensor([0.5341], device='cuda:0') tensor([822.], device='cuda:0') tensor(439., device='cuda:0') tensor(822., device='cuda:0')
+tensor([0.5341], device='cuda:0') tensor([1657.], device='cuda:0') tensor(446., device='cuda:0') tensor(835., device='cuda:0')
+tensor([0.5252], device='cuda:0') tensor([2456.], device='cuda:0') tensor(405., device='cuda:0') tensor(799., device='cuda:0')
+tensor([0.5452], device='cuda:0') tensor([3307.], device='cuda:0') tensor(513., device='cuda:0') tensor(851., device='cuda:0')
+tensor([0.5482], device='cuda:0') tensor([4106.], device='cuda:0') tensor(448., device='cuda:0') tensor(799., device='cuda:0')
+tensor([0.5459], device='cuda:0') tensor([4902.], device='cuda:0') tensor(425., device='cuda:0') tensor(796., device='cuda:0')
+tensor([0.5524], device='cuda:0') tensor([5695.], device='cuda:0') tensor(470., device='cuda:0') tensor(793., device='cuda:0')
+tensor([0.5527], device='cuda:0') tensor([6302.], device='cuda:0') tensor(337., device='cuda:0') tensor(607., device='cuda:0')
+Class sofa acc = 0.5527
+Evaluating class train: 18/20
+tensor([0.8188], device='cuda:0') tensor([436.], device='cuda:0') tensor(357., device='cuda:0') tensor(436., device='cuda:0')
+tensor([0.8247], device='cuda:0') tensor([873.], device='cuda:0') tensor(363., device='cuda:0') tensor(437., device='cuda:0')
+tensor([0.8064], device='cuda:0') tensor([1307.], device='cuda:0') tensor(334., device='cuda:0') tensor(434., device='cuda:0')
+tensor([0.8223], device='cuda:0') tensor([1739.], device='cuda:0') tensor(376., device='cuda:0') tensor(432., device='cuda:0')
+tensor([0.8210], device='cuda:0') tensor([2168.], device='cuda:0') tensor(350., device='cuda:0') tensor(429., device='cuda:0')
+tensor([0.8284], device='cuda:0') tensor([2605.], device='cuda:0') tensor(378., device='cuda:0') tensor(437., device='cuda:0')
+tensor([0.8263], device='cuda:0') tensor([3052.], device='cuda:0') tensor(364., device='cuda:0') tensor(447., device='cuda:0')
+tensor([0.8274], device='cuda:0') tensor([3418.], device='cuda:0') tensor(306., device='cuda:0') tensor(366., device='cuda:0')
+Class train acc = 0.8274
+Evaluating class tvmonitor: 19/20
+tensor([0.8516], device='cuda:0') tensor([512.], device='cuda:0') tensor(436., device='cuda:0') tensor(512., device='cuda:0')
+tensor([0.8849], device='cuda:0') tensor([1025.], device='cuda:0') tensor(471., device='cuda:0') tensor(513., device='cuda:0')
+tensor([0.8862], device='cuda:0') tensor([1538.], device='cuda:0') tensor(456., device='cuda:0') tensor(513., device='cuda:0')
+tensor([0.8844], device='cuda:0') tensor([2051.], device='cuda:0') tensor(451., device='cuda:0') tensor(513., device='cuda:0')
+tensor([0.8890], device='cuda:0') tensor([2558.], device='cuda:0') tensor(460., device='cuda:0') tensor(507., device='cuda:0')
+tensor([0.8855], device='cuda:0') tensor([3065.], device='cuda:0') tensor(440., device='cuda:0') tensor(507., device='cuda:0')
+tensor([0.8869], device='cuda:0') tensor([3573.], device='cuda:0') tensor(455., device='cuda:0') tensor(508., device='cuda:0')
+tensor([0.8913], device='cuda:0') tensor([3993.], device='cuda:0') tensor(390., device='cuda:0') tensor(420., device='cuda:0')
+Class tvmonitor acc = 0.8913
+Evaluation complete in 32m 31s
+Total number 20000 total seconds 1951.1335549354553
+Matching accuracy
+aeroplane = 0.4701
+bicycle = 0.5737
+bird = 0.5679
+boat = 0.5108
+bottle = 0.7485
+bus = 0.7445
+car = 0.6515
+cat = 0.6628
+chair = 0.3814
+cow = 0.6195
+diningtable = 0.5416
+dog = 0.5854
+horse = 0.6217
+motorbike = 0.5996
+person = 0.4221
+pottedplant = 0.7466
+sheep = 0.6379
+sofa = 0.5527
+train = 0.8274
+tvmonitor = 0.8913
+average = 0.6178
+
+Process finished with exit code 0

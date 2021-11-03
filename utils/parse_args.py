@@ -15,6 +15,7 @@ def parse_args(description):
                         help='model name', default=None, type=str)
     parser.add_argument('--dataset', dest='dataset',
                         help='dataset name', default=None, type=str)
+    parser.add_argument('--quad-sinkhorn', action='store_true', default=False)
     args = parser.parse_args()
 
     # load cfg from file
