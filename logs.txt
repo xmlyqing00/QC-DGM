@@ -1,2 +1,25 @@
 22672  s + edge_s + 0.1 * spatial_s  eps 0.001
 22675 s + edges  0.01  6865
+    aeroplane = 0.4911
+    bicycle = 0.6550
+    bird = 0.6056
+    boat = 0.5640
+    bottle = 0.8256
+    bus = 0.7890
+    car = 0.7190
+    cat = 0.7132
+    chair = 0.4164
+    cow = 0.6766
+    diningtable = 0.7336
+    dog = 0.6398
+    horse = 0.7086
+    motorbike = 0.6568
+    person = 0.4831
+    pottedplant = 0.9132
+    sheep = 0.6843
+    sofa = 0.6541
+    train = 0.8806
+    tvmonitor = 0.9196
+    average = 0.6865
+
+22676
