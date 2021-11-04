@@ -28,7 +28,7 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False):
 
     ds = dataloader.dataset
     classes = ds.classes
-    cls_cache = ds.cls
+    cls_cache = ds.clss
 
     lap_solver = hungarian
 
@@ -151,7 +151,7 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False):
     print('Total number', total_num, 'total seconds', time_elapsed)
 
     model.train(mode=was_training)
-    ds.cls = cls_cache
+    ds.clss = cls_cache
     print('Matching accuracy')
     for cls, single_acc in zip(classes, accs):
        print('{} = {:.4f}'.format(cls, single_acc))

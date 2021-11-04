@@ -108,8 +108,8 @@ class Net(CNN):
         emb1, emb2 = self.gnn_layer1([AA_src, emb1_new], [BB_tgt, emb2_new])
         s_vertex = self.affinity_layer1(emb1, emb2)
 
-        emb1_normed = torch.matmul(emb1 / torch.norm(emb1, dim=2, keepdim=True), self.affinity_layer2.A)
-        emb2_normed = torch.matmul(emb2 / torch.norm(emb2, dim=2, keepdim=True), self.affinity_layer2.A)
+        emb1_normed = torch.matmul(emb1 / torch.norm(emb1, dim=2, keepdim=True), torch.abs(self.affinity_layer2.A))
+        emb2_normed = torch.matmul(emb2 / torch.norm(emb2, dim=2, keepdim=True), torch.abs(self.affinity_layer2.A))
 
         s_edge = torch.einsum('nlc, nsc -> nls', emb1_normed.sum(dim=2, keepdims=True),
                               emb2_normed.sum(dim=2, keepdims=True))
