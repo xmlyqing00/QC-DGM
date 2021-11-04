@@ -149,7 +149,7 @@ def train_eval_model(model,
        
 
         # Eval in each epoch
-        accs = eval_model(model, dataloader['test'])
+        accs = eval_model(model, dataloader['test'], quad_sinkhorn_flag=args.quad_sinkhorn)
         acc_dict = {"{}".format(cls): single_acc for cls, single_acc in zip(dataloader['train'].dataset.classes, accs)}
         acc_dict['average'] = torch.mean(accs)
         tfboard_writer.add_scalars(

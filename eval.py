@@ -12,7 +12,7 @@ import torch.nn.functional as F
 from utils.config import cfg
 
 
-def eval_model(model, dataloader, eval_epoch=None, verbose=False):
+def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_flag=False):
     print('Start evaluation...')
     since = time.time()
 
@@ -108,7 +108,7 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False):
             lb = 0.1
             Xnew = lap_solver(s_pred, n1_gt, n2_gt)
 
-            if args.quad_sinkhorn:
+            if quad_sinkhorn_flag:
                 s_pred_perm = Xnew
             else:
                 A_src = torch.bmm(G1_gt, H1_gt.transpose(1, 2))
@@ -204,4 +204,4 @@ if __name__ == '__main__':
         classes = dataloader.dataset.classes
         pcks = eval_model(model, dataloader,
                           eval_epoch=cfg.EVAL.EPOCH if cfg.EVAL.EPOCH != 0 else None,
-                          verbose=True)
+                          verbose=True, quad_sinkhorn_flag=args.quad_sinkhorn)
