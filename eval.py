@@ -108,7 +108,7 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False):
             lb = 0.1
             Xnew = lap_solver(s_pred, n1_gt, n2_gt)
 
-            if args.quad_sinkhorn and False:
+            if args.quad_sinkhorn:
                 s_pred_perm = Xnew
             else:
                 A_src = torch.bmm(G1_gt, H1_gt.transpose(1, 2))

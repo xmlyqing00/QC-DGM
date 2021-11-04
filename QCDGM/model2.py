@@ -86,12 +86,12 @@ class Net(CNN):
         emb1_normed = emb1 / torch.norm(emb1, dim=2, keepdim=True)
         emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
 
-        AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
-        BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
+        AA_src = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
+        BB_tgt = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
         # AA_src = torch.mul(torch.exp(AA), A_src)
         # BB_tgt = torch.mul(torch.exp(BB), A_tgt)
-        AA_src = AA
-        BB_tgt = BB
+        # AA_src = AA
+        # BB_tgt = BB
 
         ## Normalization in evaluation
         # if self.training == False:
