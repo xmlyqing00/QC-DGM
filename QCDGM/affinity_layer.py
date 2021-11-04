@@ -30,3 +30,30 @@ class Affinity(nn.Module):
         M = torch.matmul(M, Y.transpose(1, 2))
 
         return M
+
+class Affinity2(nn.Module):
+    """
+    Affinity Layer to compute the affinity matrix from feature space.
+    M = X * A * Y^T
+    Parameter: scale of weight d
+    Input: feature X, Y
+    Output: affinity matrix M
+    """
+    def __init__(self, d):
+        super(Affinity2, self).__init__()
+        self.d = d
+        self.A = Parameter(Tensor(self.d, self.d))
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        stdv = 1. / math.sqrt(self.d)
+        self.A.data.uniform_(-stdv, stdv)
+        self.A.data += torch.eye(self.d)
+
+    def forward(self, X, Y):
+        assert X.shape[2] == Y.shape[2] == self.d
+        self.A2 = self.A * self.A
+        M = torch.matmul(X, self.A2 @ self.A2.T)
+        M = torch.matmul(M, Y.transpose(1, 2))
+
+        return M

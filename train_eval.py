@@ -182,12 +182,17 @@ if __name__ == '__main__':
 
     dataset_len = {'train': cfg.TRAIN.EPOCH_ITERS * cfg.BATCH_SIZE, 'test': cfg.EVAL.SAMPLES}
     image_dataset = {
-        x: GMDataset(cfg.DATASET_FULL_NAME,
-                     sets=x,
-                     length=dataset_len[x],
-                     cls=cfg.TRAIN.CLASS if x == 'train' else None,
-                     obj_resize=cfg.PAIR.RESCALE)
-        for x in ('train', 'test')}
+        'train': GMDataset(cfg.DATASET_FULL_NAME,
+                     dataset_len['train'],
+                     cfg.TRAIN.CLASS,
+                     sets='train',
+                     obj_resize=cfg.PAIR.RESCALE),
+        'test': GMDataset(cfg.DATASET_FULL_NAME,
+                           dataset_len['test'],
+                           None,
+                           sets='test',
+                           obj_resize=cfg.PAIR.RESCALE)
+    }
     dataloader = {x: get_dataloader(image_dataset[x], fix_seed=(x == 'test'))
         for x in ('train', 'test')}
 
@@ -197,14 +202,16 @@ if __name__ == '__main__':
     model = model.cuda()
     criterion = FMLoss()   
     optimizer = optim.SGD(model.parameters(), lr=cfg.TRAIN.LR, momentum=cfg.TRAIN.MOMENTUM, nesterov=True)
-
-    model = DataParallel(model, device_ids=cfg.GPUS)
+    if args.local:
+        model = DataParallel(model, device_ids=[0])
+    else:
+        model = DataParallel(model, device_ids=range(torch.cuda.device_count()))
 
     if not Path(cfg.OUTPUT_PATH).exists():
         Path(cfg.OUTPUT_PATH).mkdir(parents=True)
 
     now_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    tfboardwriter = SummaryWriter(logdir=str(Path(cfg.OUTPUT_PATH) / 'tensorboard' / 'training_{}'.format(now_time)))
+    tfboardwriter = SummaryWriter(str(Path(cfg.OUTPUT_PATH) / 'tensorboard' / 'training_{}'.format(now_time)))
 
     with DupStdoutFileManager(str(Path(cfg.OUTPUT_PATH) / ('train_log_' + now_time + '.log'))) as _:
         print_easydict(cfg)

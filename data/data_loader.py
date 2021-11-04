@@ -14,20 +14,20 @@ from utils.config import cfg
 
 
 class GMDataset(Dataset):
-    def __init__(self, name, length, cls=None, **args):
+    def __init__(self, name, length, clss, sets, obj_resize):
         self.name = name
-        self.ds = eval(self.name)(**args)
+        self.ds = eval(self.name)(sets, obj_resize)
         self.length = length  # NOTE images pairs are sampled randomly, so there is no exact definition of dataset size
                               # length here represents the iterations between two checkpoints
         self.obj_size = self.ds.obj_resize
         self.classes = self.ds.classes
-        self.cls = None if cls == 'none' else cls
+        self.clss = None if clss == 'none' else clss
 
     def __len__(self):
         return self.length
 
     def __getitem__(self, idx):
-        anno_pair, perm_mat = self.ds.get_pair(self.cls)
+        anno_pair, perm_mat = self.ds.get_pair(self.clss)
         if perm_mat.size <= 2 * 2:
             return self.__getitem__(idx)
 
