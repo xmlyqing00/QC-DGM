@@ -133,8 +133,8 @@ class Net(CNN):
                     spatial_s = torch.einsum('nlc, nsc -> nls', tpos0.sum(dim=2, keepdims=True), tpos1.sum(dim=2, keepdims=True))
 
                     # scores = s + edge_s + 0.05 * spatial_s
-                    scores = edge_s
-                    s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=20)
+                    scores = s + edge_s
+                    s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=10)
 
                 ## Normalization in evaluation
                 if self.training == False:

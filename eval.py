@@ -190,9 +190,11 @@ if __name__ == '__main__':
     model = Net()
     model = model.cuda()
     model.quad_sinkhorn_flag = args.quad_sinkhorn
-    model = DataParallel(model, device_ids = range(torch.cuda.device_count()))
+
     if args.local:
         model = DataParallel(model, device_ids=[0])
+    else:
+        model = DataParallel(model, device_ids=range(torch.cuda.device_count()))
 
     if not Path(cfg.OUTPUT_PATH).exists():
         Path(cfg.OUTPUT_PATH).mkdir(parents=True)

@@ -46,6 +46,7 @@ def log_sinkhorn(scores: torch.Tensor, dustbin_flag: bool, dustinbin_alpha: torc
 
         z = log_sinkhorn_iterations(couplings, log_mu, log_nu, iters)
         z = z - norm  # multiply probabilities by M+N
+        z = z[:, :-1, :-1]
 
     else:
         norm = - np.log(m + n)
@@ -85,7 +86,7 @@ def quad_matching(scores: torch.Tensor, kptsn: tuple = None, dustbin_flag: bool 
     # print('filterred', scores[0])
 
     # z = log_sinkhorn(scores, dustbin_flag, dustbin_alpha, iters)
-    z = log_sinkhorn(scores, False, None, iters)
+    z = log_sinkhorn(scores, True, torch.ones(1, device=scores.device), iters)
     z = torch.exp(z)  # could be deleted
 
     # print("scores", scores)
