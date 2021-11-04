@@ -19,7 +19,7 @@ __C = edict()
 cfg = __C
 
 # Minibatch size
-__C.BATCH_SIZE = 4
+__C.BATCH_SIZE = 32
 
 # Pairwise data loader settings.
 __C.PAIR = edict()

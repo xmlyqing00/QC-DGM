@@ -193,7 +193,7 @@ if __name__ == '__main__':
                            sets='test',
                            obj_resize=cfg.PAIR.RESCALE)
     }
-    dataloader = {x: get_dataloader(image_dataset[x], fix_seed=(x == 'test'))
+    dataloader = {x: get_dataloader(image_dataset[x], bs=256, fix_seed=(x == 'test'))
         for x in ('train', 'test')}
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
