@@ -210,6 +210,9 @@ if __name__ == '__main__':
     if not Path(cfg.OUTPUT_PATH).exists():
         Path(cfg.OUTPUT_PATH).mkdir(parents=True)
 
+    print(model)
+    # print('bs', cfg.BATCH_SIZE)
+    # print(dataloader['train'])
     now_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     tfboardwriter = SummaryWriter(str(Path(cfg.OUTPUT_PATH) / 'tensorboard' / 'training_{}'.format(now_time)))
 
