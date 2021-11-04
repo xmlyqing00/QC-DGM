@@ -52,7 +52,7 @@ class Affinity2(nn.Module):
 
     def forward(self, X, Y):
         assert X.shape[2] == Y.shape[2] == self.d
-        self.A2 = torch.abs(self.A)
+        self.A2 = self.A * self.A
         M = torch.matmul(X, self.A2 @ self.A2.T)
         M = torch.matmul(M, Y.transpose(1, 2))
 

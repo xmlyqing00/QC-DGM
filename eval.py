@@ -12,6 +12,23 @@ import torch.nn.functional as F
 from utils.config import cfg
 
 
+def symsqrt(matrix):
+    """Compute the square root of a positive definite matrix."""
+    u, s, v = matrix.svd()
+    good = s > s.max(-1, True).values * s.size(-1) * torch.finfo(s.dtype).eps
+    components = good.sum(-1)
+    common = components.max()
+    unbalanced = common != components.min()
+    if common < s.size(-1):
+        s = s[..., :common]
+        v = v[..., :common]
+        if unbalanced:
+            good = good[..., :common]
+    if unbalanced:
+        s = s.where(good, torch.zeros((), device=s.device, dtype=s.dtype))
+    return (v * s.sqrt().unsqueeze(-2)) @ v.transpose(-2, -1)
+
+
 def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_flag=False):
     print('Start evaluation...')
     since = time.time()
@@ -70,6 +87,31 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
             edge_feat2 = [_.cuda() for _ in inputs['edge_feat2']]
             perm_mat = inputs['gt_perm_mat'].cuda()
 
+            x = torch.randn(5, 10, 10).double()
+            x = x @ x.transpose(-1, -2)
+            y = symsqrt(x)
+            print(torch.allclose(x, y @ y.transpose(-1, -2)))
+
+            edge_map0 = torch.bmm(G1_gt, H1_gt.transpose(1, 2))
+            edge_map1 = torch.bmm(G2_gt, H2_gt.transpose(1, 2))
+
+            # for i in range(len(n1_gt)):
+            #     print(n1_gt[i], edge_map0.shape[1])
+            #     for j in range(0, edge_map0.shape[1]):
+            #         edge_map0[i, j, j] = 1
+            e = symsqrt(edge_map0[0:1, :11, :11])
+            print( 'edge0', torch.allclose(edge_map0[0:1, :11, :11], e @ e.transpose(-1, -2)))
+
+            u, s, v = torch.linalg.svd(edge_map0[1:2])
+            z  = (v * s.sqrt().unsqueeze(-2)) @ v.transpose(-2, -1)
+            e  = torch.bmm(z.transpose(1, 2), z)
+            diff = torch.dist(e, edge_map0[1:2])
+
+
+            l, q = torch.linalg.eigh(edge_map1)
+            l2_ = torch.sqrt(l)
+            print(torch.dist(edge_map0, torch.bmm(torch.bmm(q, torch.diag_embed(l2_)), q.transpose(1, 2))))
+
             # print(perm_mat[0])
 
             batch_num = data1.size(0)
@@ -107,6 +149,11 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
 
             lb = 0.1
             Xnew = lap_solver(s_pred, n1_gt, n2_gt)
+
+
+
+
+
 
             if quad_sinkhorn_flag:
                 s_pred_perm = Xnew

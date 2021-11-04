@@ -14,7 +14,7 @@ from utils.config import cfg
 
 
 class GMDataset(Dataset):
-    def __init__(self, name, length, clss, sets, obj_resize):
+    def __init__(self, name, length, clss=None, sets=None, obj_resize=None):
         self.name = name
         self.ds = eval(self.name)(sets, obj_resize)
         self.length = length  # NOTE images pairs are sampled randomly, so there is no exact definition of dataset size

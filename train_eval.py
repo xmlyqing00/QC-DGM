@@ -147,6 +147,8 @@ def train_eval_model(model,
 
         print('Epoch {:<4} Loss: {:.4f}'.format(epoch, epoch_loss))
        
+        if epoch % 2 == 1:
+            continue
 
         # Eval in each epoch
         accs = eval_model(model, dataloader['test'], quad_sinkhorn_flag=args.quad_sinkhorn)
@@ -210,7 +212,7 @@ if __name__ == '__main__':
     if not Path(cfg.OUTPUT_PATH).exists():
         Path(cfg.OUTPUT_PATH).mkdir(parents=True)
 
-    print(model)
+    # print(model)
     # print('bs', cfg.BATCH_SIZE)
     # print(dataloader['train'])
     now_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')

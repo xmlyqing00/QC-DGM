@@ -173,7 +173,7 @@ def get_output_dir(model, dataset):
     :param dataset: dataset name
     :return: output path (checkpoint and log), visual path (visualization images)
     """
-    outp_path = os.path.join('output', '{}_{}'.format(model, dataset))
+    outp_path = os.path.join('/work/xmlyqing/QC-DGM/output', '{}_{}'.format(model, dataset))
     return outp_path
 
 
