@@ -27,7 +27,7 @@ export SRC_DIR=QC-DGM
 
 cd $HOME_DIR/$SRC_DIR
 
-python3.6 eval.py \
+python3 eval.py \
 --cfg ./experiments/QCDGM_voc.yaml \
 --quad-sinkhorn
 
