@@ -202,16 +202,18 @@ class Net(CNN):
 
             ## Pairwise structural context
 
-            if i == 1:
-                AA_src = AA
-                BB_tgt = BB
-            else:
-                AA_src = torch.mul(torch.exp(AA), A_src)
-                BB_tgt = torch.mul(torch.exp(BB), A_tgt)
+            # if i == 1:
+            #     AA_src = AA
+            #     BB_tgt = BB
+            # else:
+            AA_src = torch.mul(torch.exp(AA), A_src)
+            BB_tgt = torch.mul(torch.exp(BB), A_tgt)
 
             if i == 1:
               ## QC-optimization
               X = s
+              print(s)
+              print(AA_src)
               lb = 0.1  ## Balancing unary term and pairwise term
               for niter in range(3):
                 for ik in range(3):
