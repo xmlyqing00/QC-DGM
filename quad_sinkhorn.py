@@ -36,7 +36,7 @@ def decompose_sym_mat(mat: torch.Tensor, diag_val: torch.Tensor = None):
     return mat_c, r
 
 
-def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=0.1):
+def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=1):
     """ Perform Sinkhorn Normalization in Log-space for stability"""
     u, v = torch.zeros_like(log_mu), torch.zeros_like(log_nu)
     # print(u, v)
@@ -121,8 +121,8 @@ def quad_matching(scores: torch.Tensor, kptsn: tuple = None, dustbin_flag: bool 
 
     # print('filterred', scores[0])
 
-    z = log_sinkhorn(scores, False, None, iters)
-    # z = log_sinkhorn(scores, True, torch.ones(1, device=scores.device) * 0.1, iters)
+    # z = log_sinkhorn(scores, False, None, iters)
+    z = log_sinkhorn(scores, True, torch.ones(1, device=scores.device) * 0.1, iters)
 
     # print("scores", scores)
     # print("z", z)

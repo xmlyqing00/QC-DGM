@@ -138,6 +138,31 @@ train = 0.8806
 tvmonitor = 0.9206
 average = 0.6947
 
+22877 new eps 1 dustbin False
+Total number 20000 total seconds 722.8790459632874
+Matching accuracy
+aeroplane = 0.4922
+bicycle = 0.6559
+bird = 0.6113
+boat = 0.5653
+bottle = 0.8224
+bus = 0.7886
+car = 0.7175
+cat = 0.7110
+chair = 0.4165
+cow = 0.6761
+diningtable = 0.7754
+dog = 0.6408
+horse = 0.7046
+motorbike = 0.6585
+person = 0.4815
+pottedplant = 0.9135
+sheep = 0.6836
+sofa = 0.6300
+train = 0.8806
+tvmonitor = 0.9196
+average = 0.6872
+
 
 22878 new eps 1 dustbin true
 Total number 20000 total seconds 762.081404209137
@@ -163,3 +188,54 @@ sofa = 0.6300
 train = 0.8806
 tvmonitor = 0.9201
 average = 0.6875
+
+
+22879 eps 0.1 dustbin True
+Total number 20000 total seconds 729.376002073288
+Matching accuracy
+aeroplane = 0.4879
+bicycle = 0.6553
+bird = 0.6091
+boat = 0.5653
+bottle = 0.8220
+bus = 0.7893
+car = 0.7199
+cat = 0.7091
+chair = 0.4178
+cow = 0.6756
+diningtable = 0.7336
+dog = 0.6403
+horse = 0.7039
+motorbike = 0.6567
+person = 0.4791
+pottedplant = 0.9158
+sheep = 0.6848
+sofa = 0.6403
+train = 0.8806
+tvmonitor = 0.9204
+average = 0.6853
+
+22879 eps 0.1 dustbin False
+Total number 20000 total seconds 725.6337330341339
+Matching accuracy
+aeroplane = 0.4922
+bicycle = 0.6566
+bird = 0.6083
+boat = 0.5661
+bottle = 0.8251
+bus = 0.7890
+car = 0.7197
+cat = 0.7100
+chair = 0.4179
+cow = 0.6786
+diningtable = 0.7336
+dog = 0.6418
+horse = 0.7060
+motorbike = 0.6567
+person = 0.4823
+pottedplant = 0.9162
+sheep = 0.6851
+sofa = 0.6541
+train = 0.8806
+tvmonitor = 0.9201
+average = 0.6870
