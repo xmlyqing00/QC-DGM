@@ -117,29 +117,35 @@ class Net(CNN):
                 emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
 
                 ## Pairwise structural context
-                if i == 0:
-                    AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
-                    BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
-                    AA_src = torch.mul(torch.exp(AA), A_src)
-                    BB_tgt = torch.mul(torch.exp(BB), A_tgt)
-                else:
-                    edge_s = torch.einsum('nlc, nsc -> nls', emb1_normed.sum(dim=2, keepdims=True), emb2_normed.sum(dim=2, keepdims=True))
-                    edge_s /= emb2_normed.shape[2]
+                AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
+                BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
+                AA_src = torch.mul(torch.exp(AA), A_src)
+                BB_tgt = torch.mul(torch.exp(BB), A_tgt)
 
-                    img_size = torch.tensor(src.shape[-2:], dtype=torch.int, device=src.device)
-                    tpos0 = quad_sinkhorn.encode_positions(P_src, img_size)
-                    tpos1 = quad_sinkhorn.encode_positions(P_src, img_size)
+                if i == 1:
 
-                    spatial_s = torch.einsum('nlc, nsc -> nls', tpos0.sum(dim=2, keepdims=True), tpos1.sum(dim=2, keepdims=True))
+                    AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src)
+                    BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt)
+                    edge_s = torch.bmm(AA_r.sum(dim=2, keepdims=True), BB_r.sum(dim=2, keepdims=True).transpose(1, 2))
+                    # edge_s = torch.einsum('nlc, nsc -> nls', emb1_normed.sum(dim=2, keepdims=True), emb2_normed.sum(dim=2, keepdims=True))
+                    # edge_s = edge_s / AA_r.shape[2]
+
+                    # img_size = torch.tensor(src.shape[-2:], dtype=torch.int, device=src.device)
+                    # tpos0 = quad_sinkhorn.encode_positions(P_src, img_size)
+                    # tpos1 = quad_sinkhorn.encode_positions(P_src, img_size)
+
+                    # spatial_s = torch.einsum('nlc, nsc -> nls', tpos0.sum(dim=2, keepdims=True), tpos1.sum(dim=2, keepdims=True))
 
                     # scores = s + edge_s + 0.05 * spatial_s
-                    scores = s + edge_s
+                    scores = s + 0.1 * edge_s.abs()
                     s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=10)
 
                 ## Normalization in evaluation
                 if self.training == False:
-                    for b in range(s.shape[0]):
-                        s[b, :, :] = s[b, :, :].clone() / torch.max(s[b, :, :].clone())
+                    # for b in range(s.shape[0]):
+                    #     s[b, :, :] = s[b, :, :].clone() / torch.max(s[b, :, :].clone())
+                    max_val = torch.amax(s, dim=(1, 2), keepdim=True)
+                    s = s / max_val
 
                 s = self.sm_layer(s, ns_src, ns_tgt)
                 s = self.sh_layer(s, ns_src, ns_tgt)

@@ -2,6 +2,39 @@ import torch
 import numpy as np
 
 
+def sqrt_semi_definite_mat(matrix):
+    """Compute the square root of a positive definite matrix."""
+    """Url: https://github.com/pytorch/pytorch/issues/25481"""
+    u, s, v = matrix.svd()
+    good = s > s.max(-1, True).values * s.size(-1) * torch.finfo(s.dtype).eps
+    components = good.sum(-1)
+    common = components.max()
+    unbalanced = common != components.min()
+    if common < s.size(-1):
+        s = s[..., :common]
+        v = v[..., :common]
+        if unbalanced:
+            good = good[..., :common]
+    if unbalanced:
+        s = s.where(good, torch.zeros((), device=s.device, dtype=s.dtype))
+
+    return (v * s.sqrt().unsqueeze(-2)) @ v.transpose(-2, -1)
+
+
+def decompose_sym_mat(mat: torch.Tensor, diag_val: float = None):
+
+    diag_tensor = torch.ones(mat.shape[:2], device=mat.device)
+    if diag_val:
+        diag_tensor = diag_tensor * diag_val
+    else:
+        max_val, _ = mat.abs().sum(2).max(dim=1)
+        diag_tensor = diag_tensor * (max_val + 1).unsqueeze(1)
+    mat_c = mat + torch.diag_embed(diag_tensor)
+
+    r = sqrt_semi_definite_mat(mat_c)
+
+    return mat_c, r
+
 
 def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=1):
     """ Perform Sinkhorn Normalization in Log-space for stability"""
@@ -57,6 +90,8 @@ def log_sinkhorn(scores: torch.Tensor, dustbin_flag: bool, dustinbin_alpha: torc
         z = log_sinkhorn_iterations(scores, log_mu, log_nu, iters)
         z = z - norm  # multiply probabilities by M+N
 
+    z = torch.exp(z)  # could be deleted
+
     return z
 
 
@@ -73,6 +108,7 @@ def encode_positions(kpts_pos: torch.Tensor, img_size: torch.Tensor):
     return tpos
 
 
+
 def quad_matching(scores: torch.Tensor, kptsn: tuple = None, dustbin_flag: bool = False, dustbin_alpha: torch.Tensor = None, iters: int = 3):
 
     # print(kptsn)
@@ -87,7 +123,6 @@ def quad_matching(scores: torch.Tensor, kptsn: tuple = None, dustbin_flag: bool 
 
     # z = log_sinkhorn(scores, dustbin_flag, dustbin_alpha, iters)
     z = log_sinkhorn(scores, True, torch.ones(1, device=scores.device), iters)
-    z = torch.exp(z)  # could be deleted
 
     # print("scores", scores)
     # print("z", z)

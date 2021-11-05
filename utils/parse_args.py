@@ -1,6 +1,7 @@
 import argparse
 from utils.config import cfg, cfg_from_file, cfg_from_list, get_output_dir
 from pathlib import Path
+import os
 
 
 def parse_args(description):
@@ -35,7 +36,10 @@ def parse_args(description):
         cfg_from_list(['DATASET_NAME', args.dataset])
 
     if len(cfg.MODEL_NAME) != 0 and len(cfg.DATASET_NAME) != 0:
-        outp_path = get_output_dir(cfg.MODEL_NAME, cfg.DATASET_NAME)
+        if args.local:
+            outp_path = os.path.join('output', f'{cfg.MODEL_NAME}_{cfg.DATASET_NAME}')
+        else:
+            outp_path = get_output_dir(cfg.MODEL_NAME, cfg.DATASET_NAME)
         cfg_from_list(['OUTPUT_PATH', outp_path])
     assert len(cfg.OUTPUT_PATH) != 0, 'Invalid OUTPUT_PATH! Make sure model name and dataset name are specified.'
     if not Path(cfg.OUTPUT_PATH).exists():
