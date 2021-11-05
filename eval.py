@@ -115,15 +115,15 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
 
             lb = 0.1
             if quad_sinkhorn_flag:
-                max_val0, _ = A_src.abs().sum(2).max(dim=1)
-                max_val1, _ = A_tgt.abs().sum(2).max(dim=1)
-                diag_val = torch.max(max_val0, max_val1) + 1
-                A_c, A_r = quad_sinkhorn.decompose_sym_mat(A_src, diag_val)
-                B_c, B_r = quad_sinkhorn.decompose_sym_mat(A_tgt, diag_val)
-
-                edge_s = torch.bmm(A_r.sum(dim=2, keepdims=True), B_r.sum(dim=2, keepdims=True).transpose(1, 2))
-                scores = s_pred + lb * edge_s.abs()
-                s_pred = quad_sinkhorn.log_sinkhorn(scores, False, None, 5)
+                # max_val0, _ = A_src.abs().sum(2).max(dim=1)
+                # max_val1, _ = A_tgt.abs().sum(2).max(dim=1)
+                # diag_val = torch.max(max_val0, max_val1) + 1
+                # A_c, A_r = quad_sinkhorn.decompose_sym_mat(A_src, diag_val)
+                # B_c, B_r = quad_sinkhorn.decompose_sym_mat(A_tgt, diag_val)
+                #
+                # edge_s = torch.bmm(A_r.sum(dim=2, keepdims=True), B_r.sum(dim=2, keepdims=True).transpose(1, 2))
+                # scores = s_pred + lb * edge_s.abs()
+                # s_pred = quad_sinkhorn.log_sinkhorn(scores, False, None, 5)
                 s_pred_perm = lap_solver(s_pred, n1_gt, n2_gt)
             else:
                 Xnew = lap_solver(s_pred, n1_gt, n2_gt)

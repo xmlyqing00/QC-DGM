@@ -99,30 +99,29 @@ class Net(CNN):
         ## Node embedding with unary geometric prior
         emb1, emb2 = torch.cat((U_src, F_src, P1_src.transpose(1,2)), dim=1).transpose(1, 2), torch.cat((U_tgt, F_tgt, P2_tgt.transpose(1,2)), dim=1).transpose(1, 2)
 
-        if self.quad_sinkhorn_flag:
+        for i in range(self.gnn_layer):
 
-            for i in range(self.gnn_layer):
+            gnn_layer = getattr(self, 'gnn_layer_{}'.format(i))
+            if i == 0:
+                emb1, emb2 = gnn_layer([A_src, emb1], [A_tgt, emb2])
+            else:
+                emb1_new = torch.cat((emb1, torch.bmm(s, emb2)), dim=-1)
+                emb2_new = torch.cat((emb2, torch.bmm(s.transpose(1, 2), emb1)), dim=-1)
+                emb1, emb2 = gnn_layer([AA_src, emb1_new], [BB_tgt, emb2_new])
+            affinity = getattr(self, 'affinity_{}'.format(i))
+            s = affinity(emb1, emb2)
 
-                gnn_layer = getattr(self, 'gnn_layer_{}'.format(i))
-                if i == 0:
-                    emb1, emb2 = gnn_layer([A_src, emb1], [A_tgt, emb2])
-                else:
-                    emb1_new = torch.cat((emb1, torch.bmm(s, emb2)), dim=-1)
-                    emb2_new = torch.cat((emb2, torch.bmm(s.transpose(1, 2), emb1)), dim=-1)
-                    emb1, emb2 = gnn_layer([AA_src, emb1_new], [BB_tgt, emb2_new])
-                affinity = getattr(self, 'affinity_{}'.format(i))
-                s = affinity(emb1, emb2)
+            emb1_normed = emb1 / torch.norm(emb1, dim=2, keepdim=True)
+            emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
 
-                emb1_normed = emb1 / torch.norm(emb1, dim=2, keepdim=True)
-                emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
+            ## Pairwise structural context
+            AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
+            BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
+            AA_src = torch.mul(torch.exp(AA), A_src)
+            BB_tgt = torch.mul(torch.exp(BB), A_tgt)
 
-                ## Pairwise structural context
-                AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
-                BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
-                AA_src = torch.mul(torch.exp(AA), A_src)
-                BB_tgt = torch.mul(torch.exp(BB), A_tgt)
-
-                if i == 1:
+            if i == 1:
+                if self.quad_sinkhorn_flag:
                     max_val0, _ = AA_src.abs().sum(2).max(dim=1)
                     max_val1, _ = BB_tgt.abs().sum(2).max(dim=1)
                     diag_val = torch.max(max_val0, max_val1) + 1
@@ -141,7 +140,30 @@ class Net(CNN):
                     # scores = s + edge_s + 0.05 * spatial_s
                     scores = s + 0.1 * edge_s.abs()
                     s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=10)
-
+                else:
+                    ## QC-optimization
+                    X = s
+                    print(s)
+                    print(AA_src)
+                    lb = 0.1  ## Balancing unary term and pairwise term
+                    for niter in range(3):
+                        for ik in range(3):
+                            perm_tgt = torch.bmm(torch.bmm(X, BB_tgt), X.transpose(1, 2))
+                            P = (AA_src - perm_tgt)
+                            V = -2 * P.cuda()
+                            V_X = torch.bmm(V.transpose(1, 2), X)
+                            V_XB = torch.bmm(V_X, BB_tgt)
+                            VX = torch.bmm(V, X)
+                            VX_B = torch.bmm(VX, BB_tgt.transpose(1, 2))
+                            N = -s
+                            G = lb * (V_XB + VX_B) + (1 - lb) * N
+                            G_sim = -G - torch.min(-G)
+                            S = self.sh_layer(G_sim, ns_src, ns_tgt)
+                            lam = 2 / (ik + 2)
+                            Xnew = X + lam * (S - X)
+                            X = Xnew
+                        X = self.sh_layer(X, ns_src, ns_tgt)
+                    s = 1 * s + 0.5 * X  ## For faster convergence
 
                 ## Normalization in evaluation
                 if self.training == False:
@@ -153,75 +175,4 @@ class Net(CNN):
                 s = self.sm_layer(s, ns_src, ns_tgt)
                 s = self.sh_layer(s, ns_src, ns_tgt)
 
-            return s, None, None, None, None, None, None
-
-        for i in range(self.gnn_layer):
-
-            gnn_layer = getattr(self, 'gnn_layer_{}'.format(i))
-            if i==0:
-              emb1, emb2 = gnn_layer([A_src, emb1], [A_tgt, emb2])
-            else:
-              emb1_new = torch.cat((emb1, torch.bmm(s, emb2)), dim=-1)
-              emb2_new = torch.cat((emb2, torch.bmm(s.transpose(1, 2), emb1)), dim=-1)              
-              emb1, emb2 = gnn_layer([AA_src, emb1_new], [BB_tgt, emb2_new])
-            affinity = getattr(self, 'affinity_{}'.format(i))   
-            s = affinity(emb1, emb2) 
-
-            # AA = torch.ones([s.shape[0], s.shape[1], s.shape[1]]).to(s.device)
-            # BB = torch.ones([s.shape[0], s.shape[2], s.shape[2]]).to(s.device)
-            ## Commutative function f
-            # for kk in range(s.shape[0]):
-            #     for ll in range(s.shape[1]):
-            #        for qq in range(s.shape[2]):
-            #             AA[kk,ll,qq] = torch.exp(torch.matmul(emb1[kk,ll,:]/torch.norm(emb1[kk,ll,:]), emb1[kk,qq,:]/torch.norm(emb1[kk,qq,:])))
-            #             BB[kk,ll,qq] = torch.exp(torch.matmul(emb2[kk,ll,:]/torch.norm(emb2[kk,ll,:]), emb2[kk,qq,:]/torch.norm(emb2[kk,qq,:])))
-
-            emb1_normed = emb1 / torch.norm(emb1, dim=2, keepdim=True)
-            emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
-            AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
-            BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
-
-            ## Pairwise structural context
-
-            # if i == 1:
-            #     AA_src = AA
-            #     BB_tgt = BB
-            # else:
-            AA_src = torch.mul(torch.exp(AA), A_src)
-            BB_tgt = torch.mul(torch.exp(BB), A_tgt)
-
-            if i == 1:
-              ## QC-optimization
-              X = s
-              print(s)
-              print(AA_src)
-              lb = 0.1  ## Balancing unary term and pairwise term
-              for niter in range(3):
-                for ik in range(3):
-
-                   perm_tgt = torch.bmm(torch.bmm(X, BB_tgt), X.transpose(1,2))
-                   P = (AA_src - perm_tgt)
-                   V = -2*P.cuda()
-                   V_X = torch.bmm(V.transpose(1,2), X)
-                   V_XB = torch.bmm(V_X, BB_tgt)
-                   VX = torch.bmm(V, X)
-                   VX_B = torch.bmm(VX, BB_tgt.transpose(1,2))     
-                   N = -s
-                   G = lb*(V_XB + VX_B) + (1-lb)*N
-                   G_sim = -G - torch.min(-G) 
-                   S = self.sh_layer(G_sim, ns_src, ns_tgt)
-                   lam = 2/(ik+2)
-                   Xnew = X + lam*(S - X)
-                   X = Xnew
-                X = self.sh_layer(X, ns_src, ns_tgt)        
-              s = 1*s + 0.5*X  ## For faster convergence
-         
-            ## Normalization in evaluation
-            if self.training == False:    
-              for b in range(s.shape[0]):
-                 s[b, :, :] = s[b, :, :].clone()/torch.max(s[b, :, :].clone())
-          
-            s = self.sm_layer(s, ns_src, ns_tgt)
-            s = self.sh_layer(s, ns_src, ns_tgt)
-            
         return s,  U_src, F_src, U_tgt, F_tgt, AA, BB
