@@ -124,8 +124,8 @@ class Net(CNN):
 
                 if i == 1:
 
-                    AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src)
-                    BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt)
+                    AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src, 30)
+                    BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt, 30)
                     edge_s = torch.bmm(AA_r.sum(dim=2, keepdims=True), BB_r.sum(dim=2, keepdims=True).transpose(1, 2))
                     # edge_s = torch.einsum('nlc, nsc -> nls', emb1_normed.sum(dim=2, keepdims=True), emb2_normed.sum(dim=2, keepdims=True))
                     # edge_s = edge_s / AA_r.shape[2]

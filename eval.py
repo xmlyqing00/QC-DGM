@@ -115,16 +115,16 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
 
             lb = 0.1
             if quad_sinkhorn_flag:
-                A_c, A_r = quad_sinkhorn.decompose_sym_mat(A_src)
-                B_c, B_r = quad_sinkhorn.decompose_sym_mat(A_tgt)
-
-                edge_s = torch.bmm(A_r.sum(dim=2, keepdims=True), B_r.sum(dim=2, keepdims=True).transpose(1, 2))
-                scores = s_pred + lb * edge_s.abs()
-                s_pred = quad_sinkhorn.log_sinkhorn(scores, False, None, 5)
+                # A_c, A_r = quad_sinkhorn.decompose_sym_mat(A_src, A_src.shape[-1])
+                # B_c, B_r = quad_sinkhorn.decompose_sym_mat(A_tgt, A_src.shape[-1])
+                #
+                # edge_s = torch.bmm(A_r.sum(dim=2, keepdims=True), B_r.sum(dim=2, keepdims=True).transpose(1, 2))
+                # scores = s_pred + lb * edge_s.abs()
+                # s_pred = quad_sinkhorn.log_sinkhorn(scores, False, None, 5)
                 Xnew = lap_solver(s_pred, n1_gt, n2_gt)
                 s_pred_perm = Xnew
             else:
-
+                Xnew = lap_solver(s_pred, n1_gt, n2_gt)
                 for miter in range(10):
                    X = qc_opt(A_src, A_tgt, s_pred, Xnew, lb)
                    Xnew = lap_solver(X, n1_gt, n2_gt)

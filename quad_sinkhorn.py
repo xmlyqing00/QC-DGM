@@ -121,8 +121,8 @@ def quad_matching(scores: torch.Tensor, kptsn: tuple = None, dustbin_flag: bool 
 
     # print('filterred', scores[0])
 
-    # z = log_sinkhorn(scores, dustbin_flag, dustbin_alpha, iters)
-    z = log_sinkhorn(scores, True, torch.ones(1, device=scores.device), iters)
+    z = log_sinkhorn(scores, False, None, iters)
+    # z = log_sinkhorn(scores, True, torch.ones(1, device=scores.device), iters)
 
     # print("scores", scores)
     # print("z", z)
