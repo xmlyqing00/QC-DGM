@@ -168,7 +168,7 @@ if __name__ == '__main__':
                               sets='test',
                               length=cfg.EVAL.SAMPLES,
                               obj_resize=cfg.PAIR.RESCALE)
-    bs = 512
+    bs = 128
     if args.local:
         bs = cfg.BATCH_SIZE
     dataloader = get_dataloader(image_dataset, bs=bs)

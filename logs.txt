@@ -1,5 +1,6 @@
 CIE pascal average time = 0.0883±0.0131 average accuracy: p = 0.6870±0.2881
 
+0.0799
 
 
 22672  s + edge_s + 0.1 * spatial_s  eps 0.001
