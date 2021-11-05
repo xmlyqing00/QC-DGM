@@ -122,9 +122,10 @@ class Net(CNN):
 
             if i == 1:
                 if self.quad_sinkhorn_flag:
-                    max_val0, _ = AA_src.abs().sum(2).max(dim=1)
-                    max_val1, _ = BB_tgt.abs().sum(2).max(dim=1)
-                    diag_val = torch.max(max_val0, max_val1) + 1
+                    # max_val0, _ = AA_src.abs().sum(2).max(dim=1)
+                    # max_val1, _ = BB_tgt.abs().sum(2).max(dim=1)
+                    # diag_val = torch.max(max_val0, max_val1) + 1
+                    diag_val = max(AA_src.max(), BB_tgt.max()).unsqueeze(0)
                     AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src, diag_val)
                     BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt, diag_val)
                     edge_s = torch.bmm(AA_r.sum(dim=2, keepdims=True), BB_r.sum(dim=2, keepdims=True).transpose(1, 2))
@@ -143,8 +144,8 @@ class Net(CNN):
                 else:
                     ## QC-optimization
                     X = s
-                    print(s)
-                    print(AA_src)
+                    # print(s)
+                    # print(AA_src)
                     lb = 0.1  ## Balancing unary term and pairwise term
                     for niter in range(3):
                         for ik in range(3):
@@ -166,13 +167,13 @@ class Net(CNN):
                     s = 1 * s + 0.5 * X  ## For faster convergence
 
                 ## Normalization in evaluation
-                if self.training == False:
-                    # for b in range(s.shape[0]):
-                    #     s[b, :, :] = s[b, :, :].clone() / torch.max(s[b, :, :].clone())
-                    max_val = torch.amax(s, dim=(1, 2), keepdim=True)
-                    s = s / max_val
+            if self.training == False:
+                # for b in range(s.shape[0]):
+                #     s[b, :, :] = s[b, :, :].clone() / torch.max(s[b, :, :].clone())
+                max_val = torch.amax(s, dim=(1, 2), keepdim=True)
+                s = s / max_val
 
-                s = self.sm_layer(s, ns_src, ns_tgt)
-                s = self.sh_layer(s, ns_src, ns_tgt)
+            s = self.sm_layer(s, ns_src, ns_tgt)
+            s = self.sh_layer(s, ns_src, ns_tgt)
 
         return s,  U_src, F_src, U_tgt, F_tgt, AA, BB
