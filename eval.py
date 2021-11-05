@@ -114,7 +114,7 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
             A_tgt = torch.bmm(G2_gt, H2_gt.transpose(1, 2))
 
             lb = 0.1
-            if quad_sinkhorn_flag:
+            if quad_sinkhorn_flag and False:
                 # A_c, A_r = quad_sinkhorn.decompose_sym_mat(A_src, A_src.shape[-1])
                 # B_c, B_r = quad_sinkhorn.decompose_sym_mat(A_tgt, A_src.shape[-1])
                 #

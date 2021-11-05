@@ -56,3 +56,57 @@ CIE pascal average time = 0.0883±0.0131 average accuracy: p = 0.6870±0.2881
 
 22684 s + edge + 0.1 spatial + hung
     avg 0.6922
+
+
+slurm 22835 sinkhorn new, eps 1
+    Total number 20000 total seconds 726.6754105091095
+    Matching accuracy
+    aeroplane = 0.4933
+    bicycle = 0.6551
+    bird = 0.6132
+    boat = 0.5655
+    bottle = 0.8216
+    bus = 0.7888
+    car = 0.7184
+    cat = 0.7128
+    chair = 0.4160
+    cow = 0.6743
+    diningtable = 0.7754
+    dog = 0.6423
+    horse = 0.7030
+    motorbike = 0.6620
+    person = 0.4837
+    pottedplant = 0.9168
+    sheep = 0.6880
+    sofa = 0.6347
+    train = 0.8812
+    tvmonitor = 0.9206
+    average = 0.6883
+
+local sinkhorn new, eps 0.1
+
+    Class tvmonitor acc = 0.9184
+    Evaluation complete in 27m 36s
+    Total number 20000 total seconds 1656.3164856433868
+    Matching accuracy
+    aeroplane = 0.4860
+    bicycle = 0.6323
+    bird = 0.5928
+    boat = 0.5802
+    bottle = 0.8418
+    bus = 0.7900
+    car = 0.7046
+    cat = 0.7059
+    chair = 0.4136
+    cow = 0.6781
+    diningtable = 0.7367
+    dog = 0.6322
+    horse = 0.7104
+    motorbike = 0.6574
+    person = 0.4823
+    pottedplant = 0.9155
+    sheep = 0.6745
+    sofa = 0.6197
+    train = 0.8836
+    tvmonitor = 0.9184
+    average = 0.6828
