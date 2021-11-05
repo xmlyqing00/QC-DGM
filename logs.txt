@@ -137,3 +137,29 @@ sofa = 0.6568
 train = 0.8806
 tvmonitor = 0.9206
 average = 0.6947
+
+
+22878 new eps 1 dustbin true
+Total number 20000 total seconds 762.081404209137
+Matching accuracy
+aeroplane = 0.4932
+bicycle = 0.6564
+bird = 0.6113
+boat = 0.5663
+bottle = 0.8204
+bus = 0.7886
+car = 0.7184
+cat = 0.7123
+chair = 0.4164
+cow = 0.6743
+diningtable = 0.7754
+dog = 0.6414
+horse = 0.7049
+motorbike = 0.6592
+person = 0.4826
+pottedplant = 0.9139
+sheep = 0.6843
+sofa = 0.6300
+train = 0.8806
+tvmonitor = 0.9201
+average = 0.6875
