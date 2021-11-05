@@ -110,3 +110,30 @@ local sinkhorn new, eps 0.1
     train = 0.8836
     tvmonitor = 0.9184
     average = 0.6828
+
+
+baseline QC-DGM
+Evaluation complete in 19m 38s
+Total number 20000 total seconds 1178.363177537918
+Matching accuracy
+aeroplane = 0.4979
+bicycle = 0.6691
+bird = 0.6203
+boat = 0.5689
+bottle = 0.8257
+bus = 0.7893
+car = 0.7225
+cat = 0.7156
+chair = 0.4275
+cow = 0.6789
+diningtable = 0.7754
+dog = 0.6526
+horse = 0.7154
+motorbike = 0.6629
+person = 0.4884
+pottedplant = 0.9304
+sheep = 0.6950
+sofa = 0.6568
+train = 0.8806
+tvmonitor = 0.9206
+average = 0.6947

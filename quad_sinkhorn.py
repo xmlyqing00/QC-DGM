@@ -21,11 +21,11 @@ def sqrt_semi_definite_mat(matrix):
     return (v * s.sqrt().unsqueeze(-2)) @ v.transpose(-2, -1)
 
 
-def decompose_sym_mat(mat: torch.Tensor, diag_val: float = None):
+def decompose_sym_mat(mat: torch.Tensor, diag_val: torch.Tensor = None):
 
     diag_tensor = torch.ones(mat.shape[:2], device=mat.device)
-    if diag_val:
-        diag_tensor = diag_tensor * diag_val
+    if diag_val is not None:
+        diag_tensor = diag_tensor * diag_val.unsqueeze(1)
     else:
         max_val, _ = mat.abs().sum(2).max(dim=1)
         diag_tensor = diag_tensor * (max_val + 1).unsqueeze(1)
@@ -36,7 +36,7 @@ def decompose_sym_mat(mat: torch.Tensor, diag_val: float = None):
     return mat_c, r
 
 
-def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=1):
+def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=0.1):
     """ Perform Sinkhorn Normalization in Log-space for stability"""
     u, v = torch.zeros_like(log_mu), torch.zeros_like(log_nu)
     # print(u, v)
@@ -121,8 +121,8 @@ def quad_matching(scores: torch.Tensor, kptsn: tuple = None, dustbin_flag: bool 
 
     # print('filterred', scores[0])
 
-    z = log_sinkhorn(scores, False, None, iters)
-    # z = log_sinkhorn(scores, True, torch.ones(1, device=scores.device), iters)
+    # z = log_sinkhorn(scores, False, None, iters)
+    z = log_sinkhorn(scores, True, torch.ones(1, device=scores.device), iters)
 
     # print("scores", scores)
     # print("z", z)

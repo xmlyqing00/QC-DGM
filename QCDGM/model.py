@@ -123,44 +123,25 @@ class Net(CNN):
                 BB_tgt = torch.mul(torch.exp(BB), A_tgt)
 
                 if i == 1:
-                    if quad_sinkhorn and False:
-                        thres_val = max(AA_src.max(), BB_tgt.max())
-                        AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src, thres_val)
-                        BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt, thres_val)
-                        edge_s = torch.bmm(AA_r.sum(dim=2, keepdims=True), BB_r.sum(dim=2, keepdims=True).transpose(1, 2))
-                        # edge_s = torch.einsum('nlc, nsc -> nls', emb1_normed.sum(dim=2, keepdims=True), emb2_normed.sum(dim=2, keepdims=True))
-                        # edge_s = edge_s / AA_r.shape[2]
+                    max_val0, _ = AA_src.abs().sum(2).max(dim=1)
+                    max_val1, _ = BB_tgt.abs().sum(2).max(dim=1)
+                    diag_val = torch.max(max_val0, max_val1) + 1
+                    AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src, diag_val)
+                    BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt, diag_val)
+                    edge_s = torch.bmm(AA_r.sum(dim=2, keepdims=True), BB_r.sum(dim=2, keepdims=True).transpose(1, 2))
+                    # edge_s = torch.einsum('nlc, nsc -> nls', emb1_normed.sum(dim=2, keepdims=True), emb2_normed.sum(dim=2, keepdims=True))
+                    # edge_s = edge_s / AA_r.shape[2]
 
-                        # img_size = torch.tensor(src.shape[-2:], dtype=torch.int, device=src.device)
-                        # tpos0 = quad_sinkhorn.encode_positions(P_src, img_size)
-                        # tpos1 = quad_sinkhorn.encode_positions(P_src, img_size)
+                    # img_size = torch.tensor(src.shape[-2:], dtype=torch.int, device=src.device)
+                    # tpos0 = quad_sinkhorn.encode_positions(P_src, img_size)
+                    # tpos1 = quad_sinkhorn.encode_positions(P_src, img_size)
 
-                        # spatial_s = torch.einsum('nlc, nsc -> nls', tpos0.sum(dim=2, keepdims=True), tpos1.sum(dim=2, keepdims=True))
+                    # spatial_s = torch.einsum('nlc, nsc -> nls', tpos0.sum(dim=2, keepdims=True), tpos1.sum(dim=2, keepdims=True))
 
-                        # scores = s + edge_s + 0.05 * spatial_s
-                        scores = s + 0.1 * edge_s.abs()
-                        s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=10)
-                    else:
-                        X = s
-                        lb = 0.1  ## Balancing unary term and pairwise term
-                        for niter in range(3):
-                            for ik in range(3):
-                                perm_tgt = torch.bmm(torch.bmm(X, BB_tgt), X.transpose(1, 2))
-                                P = (AA_src - perm_tgt)
-                                V = -2 * P.cuda()
-                                V_X = torch.bmm(V.transpose(1, 2), X)
-                                V_XB = torch.bmm(V_X, BB_tgt)
-                                VX = torch.bmm(V, X)
-                                VX_B = torch.bmm(VX, BB_tgt.transpose(1, 2))
-                                N = -s
-                                G = lb * (V_XB + VX_B) + (1 - lb) * N
-                                G_sim = -G - torch.min(-G)
-                                S = self.sh_layer(G_sim, ns_src, ns_tgt)
-                                lam = 2 / (ik + 2)
-                                Xnew = X + lam * (S - X)
-                                X = Xnew
-                            X = self.sh_layer(X, ns_src, ns_tgt)
-                        s = 1 * s + 0.5 * X  ## For faster convergence
+                    # scores = s + edge_s + 0.05 * spatial_s
+                    scores = s + 0.1 * edge_s.abs()
+                    s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=10)
+
 
                 ## Normalization in evaluation
                 if self.training == False:
