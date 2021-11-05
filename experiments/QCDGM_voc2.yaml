@@ -1,6 +1,6 @@
 # VGG16 model with Pascal VOC dataset
 
-MODEL_NAME: QCDGM
+MODEL_NAME: QCDGM2
 DATASET_NAME: voc
 
 DATASET_FULL_NAME: PascalVOC

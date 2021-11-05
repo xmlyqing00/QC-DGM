@@ -36,7 +36,7 @@ def decompose_sym_mat(mat: torch.Tensor, diag_val: float = None):
     return mat_c, r
 
 
-def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=1):
+def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=0.1):
     """ Perform Sinkhorn Normalization in Log-space for stability"""
     u, v = torch.zeros_like(log_mu), torch.zeros_like(log_nu)
     # print(u, v)
