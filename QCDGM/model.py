@@ -64,8 +64,6 @@ class Net(CNN):
             src_edge = self.l2norm(src_edge)
             tgt_node = self.l2norm(tgt_node)
             tgt_edge = self.l2norm(tgt_edge)
-			
-			
 
             # arrange features
             U_src = feature_align(src_node, P_src, ns_src, cfg.PAIR.RESCALE)
@@ -80,22 +78,28 @@ class Net(CNN):
         else:
             raise ValueError('unknown type string {}'.format(type))
 
-        
-       
         A_src = torch.bmm(G_src, H_src.transpose(1, 2))
         A_tgt = torch.bmm(G_tgt, H_tgt.transpose(1, 2))
-        P1_src = torch.zeros_like(P_src)
-        P2_tgt = torch.zeros_like(P_tgt)
-        for k in range(P_src.shape[0]):
-            for i in range(P_src.shape[1]):
-               for j in range(P_tgt.shape[2]):
-                  if torch.norm(P_src[k, i, :]) == 0:
-                      P1_src[k, i, j] = 0
-                      P2_tgt[k, i, j] = 0
-                  else:
-                      P1_src[k, i, j] = P_src[k, i, j]/torch.norm(P_src[k, i, :])
-                      P2_tgt[k, i, j] = P_tgt[k, i, j]/torch.norm(P_tgt[k, i, :])     
-        
+
+        P_src_norm = 1 / (torch.norm(P_src, dim=2, keepdim=True) + 1e-8)
+        P_tgt_norm = 1 / (torch.norm(P_tgt, dim=2, keepdim=True) + 1e-8)
+        P_src_norm = torch.where(P_src_norm < 1e7, P_src_norm, torch.zeros(1, device=P_src.device))
+        P_tgt_norm = torch.where(P_tgt_norm < 1e7, P_tgt_norm, torch.zeros(1, device=P_src.device))
+        P1_src = P_src * P_src_norm
+        P2_tgt = P_tgt * P_tgt_norm
+        #
+        # P1_src = torch.zeros_like(P_src)
+        # P2_tgt = torch.zeros_like(P_tgt)
+        # for k in range(P_src.shape[0]):
+        #     for i in range(P_src.shape[1]):
+        #        for j in range(P_tgt.shape[2]):
+        #           if torch.norm(P_src[k, i, :]) == 0:
+        #               P1_src[k, i, j] = 0
+        #               P2_tgt[k, i, j] = 0
+        #           else:
+        #               P1_src[k, i, j] = P_src[k, i, j]/torch.norm(P_src[k, i, :])
+        #               P2_tgt[k, i, j] = P_tgt[k, i, j]/torch.norm(P_tgt[k, i, :])
+        #
         ## Node embedding with unary geometric prior
         emb1, emb2 = torch.cat((U_src, F_src, P1_src.transpose(1,2)), dim=1).transpose(1, 2), torch.cat((U_tgt, F_tgt, P2_tgt.transpose(1,2)), dim=1).transpose(1, 2)
 

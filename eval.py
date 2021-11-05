@@ -10,13 +10,13 @@ from parallel import DataParallel
 from utils.model_sl import load_model
 import torch.nn.functional as F
 from utils.config import cfg
+import numpy as np
 
 
 import quad_sinkhorn
 
 def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_flag=False):
     print('Start evaluation...')
-    since = time.time()
 
     device = next(model.parameters()).device
 
@@ -35,18 +35,19 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
     lap_solver = hungarian
 
     accs = torch.zeros(len(classes)).cuda()
-    f1s = torch.zeros(len(classes)).cuda()
-    pcs = torch.zeros(len(classes)).cuda()
-    rcl = torch.zeros(len(classes)).cuda()
+    # f1s = torch.zeros(len(classes)).cuda()
+    # pcs = torch.zeros(len(classes)).cuda()
+    # rcl = torch.zeros(len(classes)).cuda()
 
     total_num = 0
+    pred_time = []
 
     for i, cls in enumerate(classes):
         if verbose:
             print('Evaluating class {}: {}/{}'.format(cls, i, len(classes)))
 
         running_since = time.time()
-        iter_num = 0
+        cls_total_num = 0
 
         ds.clss = cls
         acc_match_num = torch.zeros(1).cuda()
@@ -62,7 +63,7 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
                 raise ValueError('no valid data key (\'images\' or \'features\') found from dataloader!')
             P1_gt, P2_gt = [_.cuda() for _ in inputs['Ps']]
             n1_gt, n2_gt = [_.cuda() for _ in inputs['ns']]
-            e1_gt, e2_gt = [_.cuda() for _ in inputs['es']]
+            # e1_gt, e2_gt = [_.cuda() for _ in inputs['es']]
             G1_gt, G2_gt = [_.cuda() for _ in inputs['Gs']]
             H1_gt, H2_gt = [_.cuda() for _ in inputs['Hs']]
             KG, KH = [_.cuda() for _ in inputs['Ks']]
@@ -78,59 +79,33 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
             # print(perm_mat[0])
 
             batch_num = data1.size(0)
-            total_num += batch_num
-
-            iter_num = iter_num + 1
+            cls_total_num += batch_num
 
             with torch.set_grad_enabled(False):
                 s_pred, U_src, F_src, U_tgt, F_tgt, AA, BB = \
                     model(data1, data2, P1_gt, P2_gt, G1_gt, G2_gt, H1_gt, H2_gt, n1_gt, n2_gt, KG, KH,  edge_src, edge_tgt, edge_feat1, edge_feat2, perm_mat, inp_type)
 
-            # print(P1_gt.shape)
-            # dist1 = torch.cdist(P1_gt, P1_gt)
-            # dist2 = torch.cdist(P2_gt, P2_gt)
+                A_src = torch.bmm(G1_gt, H1_gt.transpose(1, 2))
+                A_tgt = torch.bmm(G2_gt, H2_gt.transpose(1, 2))
 
-            # print('dist1', dist1[0])
-            #
-            # ea = U_src
-            # eb = F_src
-            # q = torch.bmm(ea, torch.bmm(perm_mat, eb))
-            # print('q', q[0])
-            # # q2 = torch.bmm(torch.bmm(perm_mat, eb), perm_mat.transpose(1, 2))
-            # q1 = torch.bmm(perm_mat, eb)
-            # q2 = torch.bmm(q1, perm_mat.transpose(1, 2))
-            # d = q2 - ea
-            # print(perm_mat[0])
-            # print('d', d[0])
-            # print('q2', q2[0])
-            #
-            # print('eb', eb[0])
-            # print('ea', ea[0])
-            # # print(torch.exp(z)[0])
-            # # print(v_scores[0])
-            # print('\n=========\n')
-
-            A_src = torch.bmm(G1_gt, H1_gt.transpose(1, 2))
-            A_tgt = torch.bmm(G2_gt, H2_gt.transpose(1, 2))
-
-            lb = 0.1
-            if quad_sinkhorn_flag:
-                # max_val0, _ = A_src.abs().sum(2).max(dim=1)
-                # max_val1, _ = A_tgt.abs().sum(2).max(dim=1)
-                # diag_val = torch.max(max_val0, max_val1) + 1
-                # A_c, A_r = quad_sinkhorn.decompose_sym_mat(A_src, diag_val)
-                # B_c, B_r = quad_sinkhorn.decompose_sym_mat(A_tgt, diag_val)
-                #
-                # edge_s = torch.bmm(A_r.sum(dim=2, keepdims=True), B_r.sum(dim=2, keepdims=True).transpose(1, 2))
-                # scores = s_pred + lb * edge_s.abs()
-                # s_pred = quad_sinkhorn.log_sinkhorn(scores, False, None, 5)
-                s_pred_perm = lap_solver(s_pred, n1_gt, n2_gt)
-            else:
-                Xnew = lap_solver(s_pred, n1_gt, n2_gt)
-                for miter in range(10):
-                   X = qc_opt(A_src, A_tgt, s_pred, Xnew, lb)
-                   Xnew = lap_solver(X, n1_gt, n2_gt)
-                s_pred_perm = lap_solver(Xnew, n1_gt, n2_gt)
+                lb = 0.1
+                if quad_sinkhorn_flag:
+                    # max_val0, _ = A_src.abs().sum(2).max(dim=1)
+                    # max_val1, _ = A_tgt.abs().sum(2).max(dim=1)
+                    # diag_val = torch.max(max_val0, max_val1) + 1
+                    # A_c, A_r = quad_sinkhorn.decompose_sym_mat(A_src, diag_val)
+                    # B_c, B_r = quad_sinkhorn.decompose_sym_mat(A_tgt, diag_val)
+                    #
+                    # edge_s = torch.bmm(A_r.sum(dim=2, keepdims=True), B_r.sum(dim=2, keepdims=True).transpose(1, 2))
+                    # scores = s_pred + lb * edge_s.abs()
+                    # s_pred = quad_sinkhorn.log_sinkhorn(scores, False, None, 5)
+                    s_pred_perm = lap_solver(s_pred, n1_gt, n2_gt)
+                else:
+                    Xnew = lap_solver(s_pred, n1_gt, n2_gt)
+                    for miter in range(10):
+                       X = qc_opt(A_src, A_tgt, s_pred, Xnew, lb)
+                       Xnew = lap_solver(X, n1_gt, n2_gt)
+                    s_pred_perm = lap_solver(Xnew, n1_gt, n2_gt)
 
             _, _acc_match_num, _acc_total_num = matching_accuracy(s_pred_perm, perm_mat, n1_gt)
             acc_match_num += _acc_match_num
@@ -146,22 +121,22 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
             # print('GT', torch.argmax(perm_mat[0], dim=1))
             # print('\n===================\n')
 
-            print(acc_match_num / acc_total_num, acc_total_num,  _acc_match_num, _acc_total_num)
+            # print(acc_match_num / acc_total_num, acc_total_num,  _acc_match_num, _acc_total_num)
 
             #
-            # if iter_num % cfg.STATISTIC_STEP == 0 and verbose:
-            #     running_speed = cfg.STATISTIC_STEP * batch_num / (time.time() - running_since)
-            #     print(f'Total numbers {cfg.STATISTIC_STEP * batch_num}, total time {time.time() - running_since}')
-            #     print('Class {:<8} Iteration {:<4} {:>4.2f}sample/s'.format(cls, iter_num, running_speed))
-            #     running_since = time.time()
+            # if verbose:
+            #     print(acc_match_num / acc_total_num, acc_total_num, _acc_match_num, _acc_total_num)
+            #     running_speed = total_num / (time.time() - running_since)
+            #     print('fps', running_speed)
 
+        pred_time.append((time.time() - running_since) / cls_total_num)
+        total_num += cls_total_num
         accs[i] = acc_match_num / acc_total_num
         if verbose:
-            print('Class {} acc = {:.4f}'.format(cls, accs[i]))
+            print(f'Class {cls} acc = {accs[i]:.4f} time = {pred_time[-1]:.4f}')
 
-    time_elapsed = time.time() - since
-    print('Evaluation complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Total number', total_num, 'total seconds', time_elapsed)
+    # print('Evaluation complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    print('Total number', total_num, f'avg time = {np.array(pred_time).mean():.4f}')
 
     model.train(mode=was_training)
     ds.clss = cls_cache
