@@ -18,6 +18,7 @@ def parse_args(description):
                         help='dataset name', default=None, type=str)
     parser.add_argument('--quad-sinkhorn', action='store_true', default=False)
     parser.add_argument('--local', action='store_true', default=False)
+    parser.add_argument('--bs', type=float, default=1024, help='batchsize')
     args = parser.parse_args()
 
     # load cfg from file
