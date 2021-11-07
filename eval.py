@@ -92,7 +92,7 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
                 if quad_sinkhorn_flag:
                     # max_val0, _ = A_src.abs().sum(2).max(dim=1)
                     # max_val1, _ = A_tgt.abs().sum(2).max(dim=1)
-                    # diag_val = torch.max(max_val0, max_val1) + 1
+                    # diag_val = torch.max(max_val0, max_val1)
                     # A_c, A_r = quad_sinkhorn.decompose_sym_mat(A_src, diag_val)
                     # B_c, B_r = quad_sinkhorn.decompose_sym_mat(A_tgt, diag_val)
                     #

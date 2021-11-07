@@ -240,3 +240,29 @@ sofa = 0.6541
 train = 0.8806
 tvmonitor = 0.9201
 average = 0.6870
+
+
+
+23009 modify Aii
+aeroplane = 0.4927
+bicycle = 0.6569
+bird = 0.6116
+boat = 0.5663
+bottle = 0.8206
+bus = 0.7886
+car = 0.7182
+cat = 0.7124
+chair = 0.4164
+cow = 0.6746
+diningtable = 0.7754
+dog = 0.6414
+horse = 0.7055
+motorbike = 0.6592
+person = 0.4823
+pottedplant = 0.9143
+sheep = 0.6843
+sofa = 0.6300
+train = 0.8806
+tvmonitor = 0.9201
+average = 0.6876
+Sat Nov  6 22:35:37 CDT 2021
