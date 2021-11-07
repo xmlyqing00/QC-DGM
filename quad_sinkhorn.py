@@ -5,7 +5,7 @@ import numpy as np
 def sqrt_semi_definite_mat(matrix):
     """Compute the square root of a positive definite matrix."""
     """Url: https://github.com/pytorch/pytorch/issues/25481"""
-    u, s, v = matrix.svd()
+    _, s, v = matrix.svd()
     good = s > s.max(-1, True).values * s.size(-1) * torch.finfo(s.dtype).eps
     components = good.sum(-1)
     common = components.max()
@@ -18,7 +18,8 @@ def sqrt_semi_definite_mat(matrix):
     if unbalanced:
         s = s.where(good, torch.zeros((), device=s.device, dtype=s.dtype))
 
-    return (v * s.sqrt().unsqueeze(-2)) @ v.transpose(-2, -1)
+    # return (v * s.sqrt().unsqueeze(-2)) @ v.transpose(-2, -1)
+    return v * s.sqrt().unsqueeze(-2)
 
 
 def decompose_sym_mat(mat: torch.Tensor, diag_val: torch.Tensor = None):

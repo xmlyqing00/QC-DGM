@@ -133,7 +133,7 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
         total_num += cls_total_num
         accs[i] = acc_match_num / acc_total_num
         if verbose:
-            print(f'Class {cls} acc = {accs[i]:.4f} time = {pred_time[-1]:.4f}')
+            print(f'Class {cls}\t\t acc = {accs[i]:.4f}\t\t time = {pred_time[-1]:.4f}')
 
     # print('Evaluation complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Total number', total_num, f'avg time = {np.array(pred_time).mean():.4f}')
@@ -168,7 +168,7 @@ if __name__ == '__main__':
                               sets='test',
                               length=cfg.EVAL.SAMPLES,
                               obj_resize=cfg.PAIR.RESCALE)
-    bs = 512
+    bs = 1024
     if args.local:
         bs = cfg.BATCH_SIZE
     dataloader = get_dataloader(image_dataset, bs=bs)
