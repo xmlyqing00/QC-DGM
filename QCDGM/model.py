@@ -128,7 +128,7 @@ class Net(CNN):
                 if self.quad_sinkhorn_flag:
                     max_val0, _ = AA_src.abs().sum(2).max(dim=1)
                     max_val1, _ = BB_tgt.abs().sum(2).max(dim=1)
-                    diag_val = torch.max(max_val0, max_val1) + 1
+                    diag_val = torch.max(max_val0, max_val1)
                     AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src, diag_val)
                     BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt, diag_val)
                     edge_s = torch.bmm(AA_r.sum(dim=2, keepdims=True), BB_r.sum(dim=2, keepdims=True).transpose(1, 2))
