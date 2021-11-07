@@ -282,3 +282,60 @@ tvmonitor = 0.9206
 average = 0.6947
 
 Process finished with exit code 0
+
+
+
+
+512
+
+Total number 20000 avg time = 0.0554
+Matching accuracy
+aeroplane = 0.4979
+bicycle = 0.6691
+bird = 0.6203
+boat = 0.5689
+bottle = 0.8257
+bus = 0.7893
+car = 0.7225
+cat = 0.7156
+chair = 0.4275
+cow = 0.6789
+diningtable = 0.7754
+dog = 0.6526
+horse = 0.7154
+motorbike = 0.6629
+person = 0.4884
+pottedplant = 0.9304
+sheep = 0.6950
+sofa = 0.6568
+train = 0.8806
+tvmonitor = 0.9206
+average = 0.6947
+
+
+bs 256
+Total number 20000 avg time = 0.0497
+Matching accuracy
+aeroplane = 0.4997
+bicycle = 0.6579
+bird = 0.6063
+boat = 0.5728
+bottle = 0.8507
+bus = 0.7904
+car = 0.7177
+cat = 0.7017
+chair = 0.4269
+cow = 0.6746
+diningtable = 0.7776
+dog = 0.6524
+horse = 0.7111
+motorbike = 0.6588
+person = 0.4981
+pottedplant = 0.9331
+sheep = 0.6990
+sofa = 0.6517
+train = 0.8832
+tvmonitor = 0.9109
+average = 0.6937
+
+
