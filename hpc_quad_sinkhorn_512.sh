@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1               # request one node
 #SBATCH -J QC-DGM-Sink
-#SBATCH -t 3-00:00:00	        # request two hours
+#SBATCH -t 0-01:00:00	        # request two hours
 #SBATCH -p checkpt          # in single partition (queue)
 #SBATCH -A hpc_gvc2021
 #SBATCH -o slurm-%j.out-%N # optional, name of the stdout, using the job number (%j) and the hostname of the node (%N)
