@@ -2,4 +2,5 @@
 __pycache__/
 output/
 data/PascalVOC/
+data/WILLOW-ObjectClass
 data/cache

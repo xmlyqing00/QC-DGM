@@ -339,3 +339,130 @@ tvmonitor = 0.9109
 average = 0.6937
 
 
+
+/usr/bin/python3.6 /Ship03/Sources/FeatureMatching/QC-DGM/eval.py --cfg ./experiments/QCDGM_voc.yaml --local
+/Ship03/Sources/FeatureMatching/QC-DGM/utils/config.py:213: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  yaml_cfg = edict(yaml.load(f))
+xml list loaded from data/cache/voc_db_test.pkl
+arg.bs 1024
+bs 64
+num_worker 12
+BATCH_SIZE: 64
+PAIR:
+  RESCALE: [256, 256]
+  GT_GRAPH_CONSTRUCT: tri
+  REF_GRAPH_CONSTRUCT: tri
+VOC2011:
+  KPT_ANNO_DIR: data/PascalVOC/annotations/
+  ROOT_DIR: data/PascalVOC/VOC2011/
+  SET_SPLIT: data/PascalVOC/voc2011_pairs.npz
+  CLASSES: ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+WILLOW:
+  ROOT_DIR: data/WILLOW-ObjectClass
+  CLASSES: ['Car', 'Duck', 'Face', 'Motorbike', 'Winebottle']
+  KPT_LEN: 10
+  TRAIN_NUM: 20
+  TRAIN_OFFSET: 0
+QCDGM:
+  FEATURE_CHANNEL: 512
+  BS_ITER_NUM: 20
+  BS_EPSILON: 1e-10
+  SCALE_ALPHA: 20.0
+  GNN_LAYER: 2
+  GNN_FEAT: 2048
+TRAIN:
+  EPOCH_ITERS: 2000
+  START_EPOCH: 0
+  NUM_EPOCHS: 35
+  LR: 0.001
+  LR_DECAY: 0.1
+  LR_STEP: [10]
+  MOMENTUM: 0.9
+  RLOSS_NORM: 256
+  CLASS: none
+  LOSS_FUNC: FMLoss
+EVAL:
+  EPOCH: 20
+  PCK_ALPHAS: [0.05, 0.1]
+  PCK_L: 256.0
+  SAMPLES: 1000
+BACKBONE: VGG16_bn
+GPUS: [0]
+DATALOADER_NUM: 12
+NORM_MEANS: [0.485, 0.456, 0.406]
+NORM_STD: [0.229, 0.224, 0.225]
+CACHE_PATH: data/cache
+MODEL_NAME: QCDGM
+DATASET_NAME: voc
+DATASET_FULL_NAME: PascalVOC
+MODULE: QCDGM.model
+OUTPUT_PATH: output/QCDGM_voc
+STATISTIC_STEP: 100
+RANDOM_SEED: 123
+Start evaluation...
+Loading model parameters from output/QCDGM_voc/params/params_0020.pt
+Evaluating class aeroplane: 0/20
+Class aeroplane		 acc = 0.4918		 time = 0.1581
+Evaluating class bicycle: 1/20
+Class bicycle		 acc = 0.6510		 time = 0.1499
+Evaluating class bird: 2/20
+Class bird		 acc = 0.6023		 time = 0.1439
+Evaluating class boat: 3/20
+Class boat		 acc = 0.5806		 time = 0.1353
+Evaluating class bottle: 4/20
+Class bottle		 acc = 0.8429		 time = 0.1334
+Evaluating class bus: 5/20
+Class bus		 acc = 0.7829		 time = 0.1327
+Evaluating class car: 6/20
+Class car		 acc = 0.7118		 time = 0.1392
+Evaluating class cat: 7/20
+Class cat		 acc = 0.7070		 time = 0.1538
+Evaluating class chair: 8/20
+Class chair		 acc = 0.4267		 time = 0.1443
+Evaluating class cow: 9/20
+Class cow		 acc = 0.6787		 time = 0.1636
+Evaluating class diningtable: 10/20
+Class diningtable		 acc = 0.7799		 time = 0.1298
+Evaluating class dog: 11/20
+Class dog		 acc = 0.6369		 time = 0.1562
+Evaluating class horse: 12/20
+Class horse		 acc = 0.7181		 time = 0.1616
+Evaluating class motorbike: 13/20
+Class motorbike		 acc = 0.6595		 time = 0.1471
+Evaluating class person: 14/20
+Class person		 acc = 0.4827		 time = 0.1736
+Evaluating class pottedplant: 15/20
+Class pottedplant		 acc = 0.9253		 time = 0.1346
+Evaluating class sheep: 16/20
+Class sheep		 acc = 0.6849		 time = 0.1489
+Evaluating class sofa: 17/20
+Class sofa		 acc = 0.6305		 time = 0.1443
+Evaluating class train: 18/20
+Class train		 acc = 0.8828		 time = 0.1275
+Evaluating class tvmonitor: 19/20
+Class tvmonitor		 acc = 0.9162		 time = 0.1311
+Total number 20000 avg time = 0.1455
+Matching accuracy
+aeroplane = 0.4918
+bicycle = 0.6510
+bird = 0.6023
+boat = 0.5806
+bottle = 0.8429
+bus = 0.7829
+car = 0.7118
+cat = 0.7070
+chair = 0.4267
+cow = 0.6787
+diningtable = 0.7799
+dog = 0.6369
+horse = 0.7181
+motorbike = 0.6595
+person = 0.4827
+pottedplant = 0.9253
+sheep = 0.6849
+sofa = 0.6305
+train = 0.8828
+tvmonitor = 0.9162
+average = 0.6896
+
+Process finished with exit code 0

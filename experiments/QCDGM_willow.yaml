@@ -9,7 +9,7 @@ MODULE: QCDGM.model
 
 BACKBONE: VGG16_bn
 
-BATCH_SIZE: 8
+BATCH_SIZE: 32
 
 RANDOM_SEED: 123
 
@@ -50,7 +50,7 @@ TRAIN:
 
 # Evaluation settings and PCK metric
 EVAL:
-  EPOCH: 6  # epoch to be tested
+  EPOCH: 12  # epoch to be tested
   SAMPLES: 100  # number of tested pairs for each class
 
 # QCDGM model parameters
