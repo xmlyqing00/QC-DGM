@@ -101,13 +101,13 @@ def eval_model(model, dataloader, eval_epoch=None, verbose=False, quad_sinkhorn_
                     # s_pred = quad_sinkhorn.log_sinkhorn(scores, False, None, 5)
                     s_pred_perm = lap_solver(s_pred, n1_gt, n2_gt)
                 else:
-                    # Xnew = lap_solver(s_pred, n1_gt, n2_gt)
-                    # for miter in range(10):
-                    #    X = qc_opt(A_src, A_tgt, s_pred, Xnew, lb)
-                    #    Xnew = lap_solver(X, n1_gt, n2_gt)
-                    # s_pred_perm = lap_solver(Xnew, n1_gt, n2_gt)
+                    Xnew = lap_solver(s_pred, n1_gt, n2_gt)
+                    for miter in range(10):
+                       X = qc_opt(A_src, A_tgt, s_pred, Xnew, lb)
+                       Xnew = lap_solver(X, n1_gt, n2_gt)
+                    s_pred_perm = lap_solver(Xnew, n1_gt, n2_gt)
 
-                    s_pred_perm = lap_solver(s_pred, n1_gt, n2_gt)
+                    # s_pred_perm = lap_solver(s_pred, n1_gt, n2_gt)
 
             _, _acc_match_num, _acc_total_num = matching_accuracy(s_pred_perm, perm_mat, n1_gt)
             acc_match_num += _acc_match_num
