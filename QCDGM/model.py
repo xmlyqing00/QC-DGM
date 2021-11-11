@@ -131,7 +131,10 @@ class Net(CNN):
                     diag_val = torch.max(max_val0, max_val1)
                     AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src, diag_val)
                     BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt, diag_val)
-                    edge_s = torch.bmm(AA_r.sum(dim=2, keepdims=True), BB_r.sum(dim=2, keepdims=True).transpose(1, 2))
+
+                    s = quad_sinkhorn.matching(s, AA_r, BB_r, (ns_src, ns_tgt), edge_w=0.1, eps=1, iters=5)
+
+                    # edge_s = torch.bmm(AA_r.abs().sum(dim=2, keepdims=True), BB_r.abs().sum(dim=2, keepdims=True).transpose(1, 2))
                     # edge_s = torch.einsum('nlc, nsc -> nls', emb1_normed.sum(dim=2, keepdims=True), emb2_normed.sum(dim=2, keepdims=True))
                     # edge_s = edge_s / AA_r.shape[2]
 
@@ -142,10 +145,10 @@ class Net(CNN):
                     # spatial_s = torch.einsum('nlc, nsc -> nls', tpos0.sum(dim=2, keepdims=True), tpos1.sum(dim=2, keepdims=True))
 
                     # scores = s + edge_s + 0.05 * spatial_s
-                    # scores = s + 1 * edge_s.abs()
-                    scores = s
+                    # scores = s + 0.1 * edge_s.abs()
+                    # scores = s
 
-                    s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=10)
+                    # s = quad_sinkhorn.quad_matching(scores, (ns_src, ns_tgt), iters=10)
                 else:
                     ## QC-optimization
                     X = s

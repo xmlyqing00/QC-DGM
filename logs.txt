@@ -266,3 +266,7 @@ train = 0.8806
 tvmonitor = 0.9201
 average = 0.6876
 Sat Nov  6 22:35:37 CDT 2021
+
+
+
+

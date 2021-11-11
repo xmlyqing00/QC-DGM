@@ -37,7 +37,7 @@ def decompose_sym_mat(mat: torch.Tensor, diag_val: torch.Tensor = None):
     return mat_c, r
 
 
-def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=1):
+def log_sinkhorn_iterations2(Z, log_mu, log_nu, iters: int, eps=1):
     """ Perform Sinkhorn Normalization in Log-space for stability"""
     u, v = torch.zeros_like(log_mu), torch.zeros_like(log_nu)
     # print(u, v)
@@ -49,6 +49,17 @@ def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=1):
         v = eps * (log_nu - torch.logsumexp((Z + u.unsqueeze(2)) / eps, dim=1))
         # print(u, v)
     return (Z + u.unsqueeze(2) + v.unsqueeze(1)) / eps
+
+
+def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int, eps=1):
+    """ Perform Sinkhorn Normalization in Log-space for stability"""
+    u, v = torch.zeros_like(log_mu), torch.zeros_like(log_nu)
+    for _ in range(iters):
+        u = eps * (log_mu - torch.logsumexp((Z + v.unsqueeze(1)) / eps, dim=2))
+        v = eps * (log_nu - torch.logsumexp((Z + u.unsqueeze(2)) / eps, dim=1))
+        # print(u, v)
+    return (Z + u.unsqueeze(2) + v.unsqueeze(1)) / eps
+
 
 
 def log_sinkhorn(scores: torch.Tensor, dustbin_flag: bool, dustinbin_alpha: torch.Tensor,  iters: int):
@@ -135,4 +146,53 @@ def quad_matching(scores: torch.Tensor, kptsn: tuple = None, dustbin_flag: bool 
     # print('\n=========\n')
 
     return z
+
+
+
+def matching(node_s: torch.Tensor, h0: torch.Tensor, h1: torch.Tensor, kptsn: tuple = None,
+             edge_w: float = 1, eps: float = 1, iters: int = 5):
+    """ Perform Differentiable Optimal Transport in Log-space for stability"""
+    b, m, n = node_s.shape
+
+    if kptsn:
+        for i in range(len(kptsn[0])):
+            node_s[i, kptsn[0][i]:, :] = 0
+            node_s[i, :, kptsn[1][i]:] = 0
+            for j in range(kptsn[0][i], n):
+                node_s[i, j, j] = 1
+
+    norm = np.log(n)
+    log_mu = norm * torch.ones(m, device=node_s.device)
+    log_nu = norm * torch.ones(n, device=node_s.device)
+    log_mu, log_nu = log_mu[None].expand(b, -1), log_nu[None].expand(b, -1)
+
+    # print('logmu', log_mu)
+    # print('lognu', log_nu)
+
+    edge_const = torch.bmm(h0.sum(dim=2, keepdims=True), h1.sum(dim=2, keepdims=True).transpose(1, 2))
+
+    u, v = torch.zeros_like(log_mu), torch.zeros_like(log_nu)
+
+    for _ in range(iters):
+        z = torch.zeros_like(node_s)
+
+        p = torch.exp((z + u.unsqueeze(2) + v.unsqueeze(1)) / eps - norm)
+        pn = torch.sign(torch.bmm(torch.bmm(h0.transpose(1, 2), p), h1))
+        if ((pn < 0).nonzero().shape[0] > 0):
+            print('pn', pn)
+            for k in range(n):
+                for l in range(m):
+                    z = z + pn[:, k, l].reshape(-1, 1, 1) * torch.bmm(h0[:, :, k:k+1], h1[:, :, l:l+1].transpose(1, 2))
+            # print('new_z', z)
+            # print('old_z', torch.bmm(h0.sum(dim=2, keepdims=True), h1.sum(dim=2, keepdims=True).transpose(1, 2)))
+            z = node_s + edge_w * z
+        else:
+            z = node_s + edge_w * edge_const
+
+        u = eps * (log_mu - torch.logsumexp((z + v.unsqueeze(1)) / eps, dim=2))
+        v = eps * (log_nu - torch.logsumexp((z + u.unsqueeze(2)) / eps, dim=1))
+        # print(u, v)
+
+    p = torch.exp((z + u.unsqueeze(2) + v.unsqueeze(1)) / eps - norm)
+    return p
 
