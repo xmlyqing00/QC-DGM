@@ -179,7 +179,7 @@ def matching(node_s: torch.Tensor, h0: torch.Tensor, h1: torch.Tensor, kptsn: tu
         p = torch.exp((z + u.unsqueeze(2) + v.unsqueeze(1)) / eps - norm)
         pn = torch.sign(torch.bmm(torch.bmm(h0.transpose(1, 2), p), h1))
         if ((pn < 0).nonzero().shape[0] > 0):
-            print('pn', pn)
+            # print('pn', pn)
             for k in range(n):
                 for l in range(m):
                     z = z + pn[:, k, l].reshape(-1, 1, 1) * torch.bmm(h0[:, :, k:k+1], h1[:, :, l:l+1].transpose(1, 2))

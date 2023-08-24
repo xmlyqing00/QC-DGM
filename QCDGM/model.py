@@ -51,6 +51,8 @@ class Net(CNN):
             if i == self.gnn_layer - 2:  # not used in ours
                 self.add_module('cross_graph_{}'.format(i), nn.Linear(cfg.QCDGM.GNN_FEAT * 2 + 4, cfg.QCDGM.GNN_FEAT + 2))
 
+        self.edge_flag = False
+
     def forward(self, src, tgt, P_src, P_tgt, G_src, G_tgt, H_src, H_tgt, ns_src, ns_tgt, K_G, K_H, edge_src, edge_tgt, edge_feat1, edge_feat2, perm_mat, type='img'):
         if type == 'img' or type == 'image':
             # extract feature. src shape: bs, 3, 256, 256
@@ -115,14 +117,18 @@ class Net(CNN):
             affinity = getattr(self, 'affinity_{}'.format(i))
             s = affinity(emb1, emb2)
 
-            emb1_normed = emb1 / torch.norm(emb1, dim=2, keepdim=True)
-            emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
-
-            ## Pairwise structural context
-            AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
-            BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
-            AA_src = torch.mul(torch.exp(AA), A_src)
-            BB_tgt = torch.mul(torch.exp(BB), A_tgt)
+            if self.edge_flag:
+                AA = BB = None
+                AA_src = A_src
+                BB_tgt = A_tgt
+            else:
+                ## Pairwise structural context
+                emb1_normed = emb1 / torch.norm(emb1, dim=2, keepdim=True)
+                emb2_normed = emb2 / torch.norm(emb2, dim=2, keepdim=True)
+                AA = torch.einsum('nlc, nsc -> nls', emb1_normed, emb1_normed)
+                BB = torch.einsum('nlc, nsc -> nls', emb2_normed, emb2_normed)
+                AA_src = torch.mul(torch.exp(AA), A_src)
+                BB_tgt = torch.mul(torch.exp(BB), A_tgt)
 
             if i == 1:
                 if self.quad_sinkhorn_flag:
@@ -131,7 +137,7 @@ class Net(CNN):
                     diag_val = torch.max(max_val0, max_val1)
                     AA_c, AA_r = quad_sinkhorn.decompose_sym_mat(AA_src, diag_val)
                     BB_c, BB_r = quad_sinkhorn.decompose_sym_mat(BB_tgt, diag_val)
-
+                    # s = torch.zeros_like(s)
                     s = quad_sinkhorn.matching(s, AA_r, BB_r, (ns_src, ns_tgt), edge_w=0.1, eps=1, iters=5)
 
                     # edge_s = torch.bmm(AA_r.abs().sum(dim=2, keepdims=True), BB_r.abs().sum(dim=2, keepdims=True).transpose(1, 2))

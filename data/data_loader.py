@@ -176,8 +176,6 @@ def worker_init_rand(worker_id):
 
 
 def get_dataloader(dataset, bs=cfg.BATCH_SIZE, fix_seed=True, shuffle=False):
-    print('bs', bs)
-    print('num_worker', cfg.DATALOADER_NUM)
     return torch.utils.data.DataLoader(
         dataset, batch_size=bs, shuffle=shuffle, num_workers=cfg.DATALOADER_NUM, collate_fn=collate_fn,
         pin_memory=True, worker_init_fn=worker_init_fix if fix_seed else worker_init_rand
